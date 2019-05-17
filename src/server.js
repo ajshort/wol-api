@@ -6,6 +6,7 @@ import { MongoClient } from 'mongodb';
 import path from 'path';
 
 import AuthedDirective from './AuthedDirective';
+import AvailabilitiesDatabase from './AvailabilitiesDatabase';
 import MembersDatabase from './MembersDatabase';
 import resolvers from './resolvers';
 
@@ -18,6 +19,7 @@ const mongo = new MongoClient(process.env.MONGODB_URL, { useNewUrlParser: true }
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
 
 const membersDatabase = new MembersDatabase(database);
+const availabilitiesDatabase = new AvailabilitiesDatabase(database);
 
 const server = new ApolloServer({
   typeDefs,
@@ -51,6 +53,7 @@ const server = new ApolloServer({
   },
   dataSources: () => ({
     members: membersDatabase,
+    availabilities: availabilitiesDatabase,
   }),
 });
 
