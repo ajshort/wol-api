@@ -1,6 +1,8 @@
 scalar Date
 scalar DateTime
 
+directive @authed on FIELD_DEFINITION
+
 type Member {
   _id: ID!
   number: Int!
@@ -35,11 +37,11 @@ type Availability {
 }
 
 type Query {
-  members: [Member!]!
-  member(number: Int!): Member
-  membersAvailable(instant: DateTime!): [Member!]!
+  members: [Member!]! @authed
+  member(number: Int!): Member @authed
+  membersAvailable(instant: DateTime!): [Member!]! @authed
 
-  teams: [String!]!
+  teams: [String!]! @authed
 }
 
 type AuthPayload {
