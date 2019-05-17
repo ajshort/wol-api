@@ -32,6 +32,8 @@ enum Qualification {
 }
 
 type Availability {
+  _id: ID!
+  member: Member!
   date: Date!
   shift: Shift!
   available: Boolean!
@@ -56,6 +58,11 @@ type AuthPayload {
   member: Member!
 }
 
+input AvailabilitiesInput {
+  availabilities: [Availabilities!]!
+}
+
 type Mutation {
   login(memberNumber: Int!, password: String!): AuthPayload!
+  setAvailabilities(memberNumber: Int!, availabilities: AvailabilitiesInput!): [Availability!]!
 }
