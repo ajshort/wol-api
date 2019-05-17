@@ -25,6 +25,12 @@ export default class MembersDatabase extends DataSource {
     return this.members.then(members => members.find().map(transformMember).toArray());
   }
 
+  fetchTeamMembers(team) {
+    return this.members
+      .then(members => members.find({ Team: team }))
+      .then(members => members.map(transformMember).toArray());
+  }
+
   fetchMember(number) {
     return this.members
       .then(members => members.findOne({ Id: number.toString() }))

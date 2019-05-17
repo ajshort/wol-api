@@ -9,6 +9,7 @@ export default {
     members: (_source, _args, { dataSources }) => dataSources.members.fetchMembers(),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
+    teamMembers: (_source, { team }, { dataSources }) => dataSources.members.fetchTeamMembers(team),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {

@@ -42,6 +42,7 @@ type Query {
   membersAvailable(instant: DateTime!): [Member!]! @authed
 
   teams: [String!]! @authed
+  teamMembers(team: String!): [Member!]! @authed
 }
 
 type AuthPayload {
