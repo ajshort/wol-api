@@ -21,9 +21,18 @@ export default {
         return dataSources.members.fetchTeamMembers(team);
       }
 
-      return dataSources.members.fetchMembers();
+      return dataSources.members.fetchAllMembers();
     },
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
+    membersAvailable: async (_source, { instant }, { dataSources }) => {
+      const available = await dataSources.availabilities.fetchMembersAvailable(instant);
+
+      if (available.length === 0) {
+        return [];
+      }
+
+      return dataSources.members.fetchMembers(available);
+    },
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
   },
   Mutation: {

@@ -1,4 +1,7 @@
 import { DataSource } from 'apollo-datasource';
+import moment from 'moment-timezone';
+
+const TIME_ZONE = 'Australia/Sydney';
 
 export default class AvailabilitiesDatabase extends DataSource {
   constructor(db) {
@@ -15,6 +18,29 @@ export default class AvailabilitiesDatabase extends DataSource {
     return this.collection
       .then(collection => collection.find(filter))
       .then(availabilities => availabilities.toArray());
+  }
+
+  fetchMembersAvailable(instant) {
+    let date = moment(instant).tz(TIME_ZONE);
+    let shift;
+
+    // Figure out which shift we're in.
+    if (date.hour() < 6) {
+      date = date.clone().subtract(1, 'day');
+      shift = 'NIGHT';
+    } else if (date.hour() < 12) {
+      shift = 'MORNING';
+    } else if (date.hour() < 18) {
+      shift = 'AFTERNOON';
+    } else {
+      shift = 'NIGHT';
+    }
+
+    return this.collection.then(collection => collection.distinct('member', {
+      date: new Date(date.format('YYYY-MM-DD')),
+      shift,
+      available: true,
+    }));
   }
 
   setAvailabilities(member, availabilities) {

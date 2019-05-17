@@ -19,8 +19,16 @@ export default class MembersDatabase extends DataSource {
     this.collection = db.then(connection => connection.collection('members'));
   }
 
-  fetchMembers() {
+  fetchAllMembers() {
     return this.collection.then(members => members.find().map(transformMember).toArray());
+  }
+
+  fetchMembers(numbers) {
+    const strings = numbers.map(number => number.toString());
+
+    return this
+      .collection.then(members => members.find({ Id: { $in: strings } }))
+      .then(members => members.map(transformMember).toArray());
   }
 
   fetchTeamMembers(team) {
