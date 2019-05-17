@@ -10,7 +10,6 @@ export default class AuthedDirective extends SchemaDirectiveVisitor {
         throw new AuthenticationError('You must be logged in');
       }
 
-
       return resolve.apply(this, [source, args, context, info]);
     };
   }
