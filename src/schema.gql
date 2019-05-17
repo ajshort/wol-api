@@ -66,5 +66,5 @@ input AvailabilityInput {
 
 type Mutation {
   login(memberNumber: Int!, password: String!): AuthPayload!
-  setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean
+  setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
 }
