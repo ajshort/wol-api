@@ -31,6 +31,21 @@ export default class MembersDatabase extends DataSource {
       .then(member => (member ? transformMember(member) : null));
   }
 
+  async authenticateMember(number, password) {
+    const members = await this.members;
+    const member = await members.findOne({ Id: number.toString() });
+
+    if (!member) {
+      return false;
+    }
+
+    if (password !== 'password') {
+      return false;
+    }
+
+    return transformMember(member);
+  }
+
   fetchTeams() {
     return this.members.then(members => members.distinct('Team'));
   }

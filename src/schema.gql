@@ -41,3 +41,12 @@ type Query {
 
   teams: [String!]!
 }
+
+type AuthPayload {
+  token: String!
+  member: Member!
+}
+
+type Mutation {
+  login(memberNumber: Int!, password: String!): AuthPayload!
+}
