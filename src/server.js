@@ -15,7 +15,9 @@ const schema = readFileSync(path.join(__dirname, 'schema.gql'), 'utf-8');
 const typeDefs = gql(schema);
 
 const mongo = new MongoClient(process.env.MONGODB_URL, { useNewUrlParser: true });
-const membersDatabase = new MembersDatabase(mongo, process.env.MONGODB_DB);
+const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
+
+const membersDatabase = new MembersDatabase(database);
 
 const server = new ApolloServer({
   typeDefs,

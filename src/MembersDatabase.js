@@ -14,32 +14,30 @@ function transformMember({ _id, ...record }) {
 }
 
 export default class MembersDatabase extends DataSource {
-  constructor(client, db) {
+  constructor(db) {
     super();
-
-    this.db = client.connect().then(connection => connection.db(db));
-    this.members = this.db.then(connection => connection.collection('members'));
+    this.collection = db.then(connection => connection.collection('members'));
   }
 
   fetchMembers() {
-    return this.members.then(members => members.find().map(transformMember).toArray());
+    return this.collection.then(members => members.find().map(transformMember).toArray());
   }
 
   fetchTeamMembers(team) {
-    return this.members
-      .then(members => members.find({ Team: team }))
+    return this.collection
+      .then(collection => collection.find({ Team: team }))
       .then(members => members.map(transformMember).toArray());
   }
 
   fetchMember(number) {
-    return this.members
-      .then(members => members.findOne({ Id: number.toString() }))
+    return this.collection
+      .then(collection => collection.findOne({ Id: number.toString() }))
       .then(member => (member ? transformMember(member) : null));
   }
 
   async authenticateMember(number, password) {
-    const members = await this.members;
-    const member = await members.findOne({ Id: number.toString() });
+    const collection = await this.collection;
+    const member = await collection.findOne({ Id: number.toString() });
 
     if (!member) {
       return false;
@@ -53,6 +51,6 @@ export default class MembersDatabase extends DataSource {
   }
 
   fetchTeams() {
-    return this.members.then(members => members.distinct('Team'));
+    return this.collection.then(collection => collection.distinct('Team'));
   }
 }
