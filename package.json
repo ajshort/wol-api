@@ -5,6 +5,7 @@
   "mian": "./src/index.js",
   "scripts": {
     "build": "babel src --out-dir dist",
+    "now-build": "npm run build",
     "test": "eslint .",
     "serve": "node ./dist/index.js",
     "watch": "nodemon ./src/index.js --exec babel-node"
