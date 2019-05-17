@@ -6,12 +6,19 @@ directive @authed on FIELD_DEFINITION
 type Member {
   _id: ID!
   number: Int!
+  permission: Permission
   fullName: String
   givenNames: String
   surname: String
   qualifications: [Qualification!]
   team: String
   availabilities(from: Date!, to: Date!): [Availability!]!
+}
+
+enum Permission {
+  SELF
+  TEAM
+  UNIT
 }
 
 enum Qualification {
@@ -24,16 +31,16 @@ enum Qualification {
   VERTICAL_RESCUE
 }
 
-enum Shift {
-  MORNING
-  AFTERNOON
-  EVENING
-}
-
 type Availability {
   date: Date!
   shift: Shift!
   available: Boolean!
+}
+
+enum Shift {
+  MORNING
+  AFTERNOON
+  EVENING
 }
 
 type Query {
