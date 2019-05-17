@@ -26,6 +26,12 @@ export default class MembersDatabase extends DataSource {
   }
 
   fetchMember(number) {
-    return this.db.then(db => db.collection('members').findOne({ number }).then(this.transformMember));
+    return this.members
+      .then(members => members.findOne({ Id: number.toString() }))
+      .then(member => (member ? transformMember(member) : null));
+  }
+
+  fetchTeams() {
+    return this.members.then(members => members.distinct('Team'));
   }
 }

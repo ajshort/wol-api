@@ -18,11 +18,9 @@ enum Qualification {
   VERTICAL_RESCUE
 }
 
-type Team {
-  name: String!
-}
-
 type Query {
   members: [Member!]!
   member(number: Int!): Member
+
+  teams: [String!]!
 }
