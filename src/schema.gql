@@ -58,11 +58,13 @@ type AuthPayload {
   member: Member!
 }
 
-input AvailabilitiesInput {
-  availabilities: [Availabilities!]!
+input AvailabilityInput {
+  date: Date!
+  shift: Shift!
+  available: Boolean!
 }
 
 type Mutation {
   login(memberNumber: Int!, password: String!): AuthPayload!
-  setAvailabilities(memberNumber: Int!, availabilities: AvailabilitiesInput!): [Availability!]!
+  setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): [Availability!]!
 }
