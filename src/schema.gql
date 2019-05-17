@@ -1,3 +1,29 @@
+type Member {
+  _id: ID!
+  number: Int!
+  givenNames: String
+  surname: String
+  qualifications: [Qualification!]
+  team: Team
+}
+
+enum Qualification {
+  CHAINSAW_CROSSCUT
+  FLOOD_RESCUE_1
+  FLOOD_RESCUE_2
+  FLOOD_RESCUE_3
+  LAND_SEARCH
+  STORM_WATER_DAMAGE
+  VERTICAL_RESCUE
+}
+
+type Team {
+  _id: ID!
+  name: String!
+  members: [Member!]
+}
+
 type Query {
-  hello: String!
+  members: [Member!]!
+  member(number: Int!): Member
 }
