@@ -12,7 +12,7 @@ import resolvers from './resolvers';
 
 dotenv.config();
 
-const schema = readFileSync(path.join(__dirname, 'schema.gql'), 'utf-8');
+const schema = readFileSync(path.join(__dirname, '/../src/schema.gql'), 'utf-8');
 const typeDefs = gql(schema);
 
 const mongo = new MongoClient(process.env.MONGODB_URL, { useNewUrlParser: true });
