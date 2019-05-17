@@ -6,7 +6,7 @@ import { MongoClient } from 'mongodb';
 import path from 'path';
 
 import AuthedDirective from './AuthedDirective';
-import MembersDatabase from './datasources/MembersDatabase';
+import MembersDatabase from './MembersDatabase';
 import resolvers from './resolvers';
 
 dotenv.config();
@@ -41,7 +41,7 @@ const server = new ApolloServer({
 
       return { member, ...context };
     } catch (err) {
-      throw AuthenticationError('Invalid token');
+      throw new AuthenticationError('Invalid token');
     }
   },
   schemaDirectives: {
