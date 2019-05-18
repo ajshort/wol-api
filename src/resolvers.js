@@ -33,6 +33,7 @@ module.exports = {
 
       return dataSources.members.fetchMembers(available);
     },
+    loggedInMember: (_source, _args, { member }) => member,
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
   },
   Mutation: {

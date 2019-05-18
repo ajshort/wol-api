@@ -46,10 +46,19 @@ enum Shift {
 }
 
 type Query {
+  """Gets all members with an optional team filter"""
   members(team: String): [Member!]! @authed
+
+  """Gets a member by number"""
   member(number: Int!): Member @authed
+
+  """Gets all members who indicated they're availabile at `instant`"""
   membersAvailable(instant: DateTime!): [Member!]! @authed
 
+  """Gets the current authorised member, or null if not logged in."""
+  loggedInMember: Member
+
+  """Gets all teams in the unit"""
   teams: [String!]! @authed
 }
 
@@ -65,6 +74,9 @@ input AvailabilityInput {
 }
 
 type Mutation {
+  """Logs in with a member number and password, and returns a token or an error"""
   login(memberNumber: Int!, password: String!): AuthPayload!
+
+  """Saves availabilities for a member, checking the member has appropriate permissions"""
   setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
 }
