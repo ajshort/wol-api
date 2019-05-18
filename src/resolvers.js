@@ -1,8 +1,8 @@
-import { AuthenticationError, UserInputError } from 'apollo-server';
-import { GraphQLDate, GraphQLDateTime } from 'graphql-iso-date';
-import jwt from 'jsonwebtoken';
+const { AuthenticationError, UserInputError } = require('apollo-server-micro');
+const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
+const jwt = require('jsonwebtoken');
 
-export default {
+module.exports = {
   Date: GraphQLDate,
   DateTime: GraphQLDateTime,
   Availability: {

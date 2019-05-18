@@ -1,9 +1,9 @@
-import { DataSource } from 'apollo-datasource';
-import moment from 'moment-timezone';
+const { DataSource } = require('apollo-datasource');
+const moment = require('moment');
 
 const TIME_ZONE = 'Australia/Sydney';
 
-export default class AvailabilitiesDatabase extends DataSource {
+class AvailabilitiesDatabase extends DataSource {
   constructor(db) {
     super();
     this.collection = db.then(connection => connection.collection('availabilities'));
@@ -57,3 +57,5 @@ export default class AvailabilitiesDatabase extends DataSource {
     });
   }
 }
+
+module.exports = AvailabilitiesDatabase;

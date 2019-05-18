@@ -1,4 +1,4 @@
-import { DataSource } from 'apollo-datasource';
+const { DataSource } = require('apollo-datasource');
 
 function transformMember({ _id, ...record }) {
   const names = record.Name.split(' ');
@@ -13,7 +13,7 @@ function transformMember({ _id, ...record }) {
   };
 }
 
-export default class MembersDatabase extends DataSource {
+class MembersDatabase extends DataSource {
   constructor(db) {
     super();
     this.collection = db.then(connection => connection.collection('members'));
@@ -62,3 +62,5 @@ export default class MembersDatabase extends DataSource {
     return this.collection.then(collection => collection.distinct('Team'));
   }
 }
+
+module.exports = MembersDatabase;
