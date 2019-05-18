@@ -54,6 +54,8 @@ const server = new ApolloServer({
     members: membersDatabase,
     availabilities: availabilitiesDatabase,
   }),
+  introspection: true,
+  playground: true,
 });
 
 module.exports = server.createHandler();
