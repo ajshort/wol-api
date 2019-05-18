@@ -1,19 +1,15 @@
-import { ApolloServer, gql, AuthenticationError } from 'apollo-server';
+import { ApolloServer, AuthenticationError } from 'apollo-server';
 import dotenv from 'dotenv';
-import { readFileSync } from 'fs';
 import jwt from 'jsonwebtoken';
 import { MongoClient } from 'mongodb';
-import path from 'path';
 
 import AuthedDirective from './AuthedDirective';
 import AvailabilitiesDatabase from './AvailabilitiesDatabase';
 import MembersDatabase from './MembersDatabase';
 import resolvers from './resolvers';
+import schema from './schema.gql';
 
 dotenv.config();
-
-const schema = readFileSync(path.join(__dirname, '/../src/schema.gql'), 'utf-8');
-const typeDefs = gql(schema);
 
 const mongo = new MongoClient(process.env.MONGODB_URL, { useNewUrlParser: true });
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
@@ -22,7 +18,7 @@ const membersDatabase = new MembersDatabase(database);
 const availabilitiesDatabase = new AvailabilitiesDatabase(database);
 
 const server = new ApolloServer({
-  typeDefs,
+  typeDefs: schema,
   resolvers,
   context: async (context) => {
     const auth = context.req.headers.authorization;
