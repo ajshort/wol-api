@@ -1,4 +1,4 @@
-const { AuthenticationError, UserInputError } = require('apollo-server-micro');
+const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server-micro');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
 const jwt = require('jsonwebtoken');
 
@@ -47,11 +47,30 @@ module.exports = {
       const token = jwt.sign({ number: memberNumber }, process.env.JWT_SECRET);
       return { token, member };
     },
-    setAvailabilities: async (_source, { memberNumber, availabilities }, { dataSources }) => {
-      const member = await dataSources.members.fetchMember(memberNumber);
+    setAvailabilities: async (_source, args, { dataSources, member }) => {
+      const { memberNumber, availabilities } = args;
+      const target = await dataSources.members.fetchMember(memberNumber);
 
-      if (!member) {
+      if (!target) {
         throw new UserInputError('Could not find member');
+      }
+
+      // Ensure that the member has appropriate permissions.
+      if (memberNumber !== member.number) {
+        switch (member.permission) {
+          case 'EDIT_UNIT':
+            break;
+
+          case 'EDIT_TEAM':
+            if (target.team !== member.team) {
+              throw new ForbiddenError('Not allowed to manage that team\'s availability');
+            }
+            break;
+
+          case 'EDIT_SELF':
+          default:
+            throw new ForbiddenError('Not allowed to manage that member\'s availability');
+        }
       }
 
       await dataSources.availabilities.setAvailabilities(memberNumber, availabilities);
