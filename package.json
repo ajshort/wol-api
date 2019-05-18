@@ -6,7 +6,7 @@
   "scripts": {
     "build": "babel src --out-dir dist",
     "now-build": "npm run build",
-    "test": "eslint .",
+    "test": "eslint src",
     "serve": "node ./dist/index.js",
     "watch": "nodemon ./src/index.js --exec babel-node"
   },
