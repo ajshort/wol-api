@@ -1,5 +1,11 @@
 {
+  "name": "wol-api",
   "version": 2,
   "builds": [{ "src": "dist/server.js", "use": "@now/node" }],
-  "routes": [{ "src": "/.*", "dest": "dist/server.js" }]
+  "routes": [{ "src": "/.*", "dest": "dist/server.js" }],
+  "env": {
+    "MONGODB_URL": "@mongodb-url",
+    "MONGODB_DB": "@mongodb-db",
+    "JWT_SECRET": "@jwt-secret"
+  }
 }
