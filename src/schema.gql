@@ -16,9 +16,9 @@ type Member {
 }
 
 enum Permission {
-  SELF
-  TEAM
-  UNIT
+  EDIT_SELF
+  EDIT_TEAM
+  EDIT_UNIT
 }
 
 enum Qualification {

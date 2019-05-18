@@ -1,14 +1,44 @@
 const { DataSource } = require('apollo-datasource');
 
+const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
+
+const QUALIFICATIONS = {
+  'Chainsaw': 'CHAINSAW_CROSSCUT', // eslint-disable-line quote-props
+  'On Land Flood Rescue': 'FLOOD_RESCUE_1',
+  'On Water Flood Rescue': 'FLOOD_RESCUE_2',
+  'In Water Flood Rescue': 'FLOOD_RESCUE_3',
+  'Land Search': 'LAND_SEARCH',
+  'Storm Water Damage': 'STORM_WATER_DAMAGE',
+  'Vertical Rescue': 'VERTICAL_RESCUE',
+};
+
+function transformQualification(qual) {
+  if (typeof QUALIFICATIONS[qual] === 'undefined') {
+    console.error(`Unknown qualification ${qual}`);
+  }
+
+  return QUALIFICATIONS[qual];
+}
+
 function transformMember({ _id, ...record }) {
-  const names = record.Name.split(' ');
+  // Everyone can at least edit their own availability.
+  let permission = 'EDIT_SELF';
+
+  if (PERMISSIONS.includes(record.Permission)) {
+    permission = record.Permission;
+  }
+
+  // Convert qualifications to enum values.
+  const qualifications = record.Quals.map(transformQualification).filter(qual => qual);
 
   return {
     _id,
     number: parseInt(record.Id, 10),
-    fullName: record.Name,
-    givenNames: names.slice(0, -1).join(' '),
-    surname: names[names.length - 1],
+    permission,
+    givenNames: record.Name,
+    surname: record.Surname,
+    fullName: `${record.Name} ${record.Surname}`,
+    qualifications,
     team: record.Team,
   };
 }
