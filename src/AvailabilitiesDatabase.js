@@ -1,5 +1,5 @@
 const { DataSource } = require('apollo-datasource');
-const moment = require('moment');
+const moment = require('moment-timezone');
 
 const TIME_ZONE = 'Australia/Sydney';
 
