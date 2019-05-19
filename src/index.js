@@ -2,6 +2,7 @@ const { ApolloServer, AuthenticationError, gql } = require('apollo-server-micro'
 const { readFileSync } = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
+const cors = require('micro-cors')();
 const { MongoClient } = require('mongodb');
 
 const AuthedDirective = require('./AuthedDirective');
@@ -58,4 +59,12 @@ const server = new ApolloServer({
   playground: true,
 });
 
-module.exports = server.createHandler();
+const handler = server.createHandler();
+
+module.exports = cors((req, res) => {
+  if (req.method === 'OPTIONS') {
+    res.end();
+  } else {
+    handler(req, res);
+  }
+});
