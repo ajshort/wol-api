@@ -38,7 +38,7 @@ function transformMember({ _id, ...record }) {
     givenNames: record.Name,
     surname: record.Surname,
     fullName: `${record.Name} ${record.Surname}`,
-    qualifications,
+    qualifications: [...new Set(qualifications)],
     team: record.Team,
   };
 }
