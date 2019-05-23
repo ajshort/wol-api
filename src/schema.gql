@@ -42,7 +42,7 @@ type Availability {
 enum Shift {
   MORNING
   AFTERNOON
-  EVENING
+  NIGHT
 }
 
 type Query {
