@@ -6,11 +6,12 @@
   "scripts": {
     "test": "eslint src",
     "start": "micro",
-    "dev": "micro-dev --port 4000"
+    "dev": "micro-dev --port 4000 --silent"
   },
   "dependencies": {
     "apollo-datasource": "^0.4.0",
     "apollo-server-micro": "^2.5.0",
+    "dataloader": "^1.4.0",
     "dotenv": "^8.0.0",
     "graphql": "^14.3.0",
     "graphql-iso-date": "^3.6.1",

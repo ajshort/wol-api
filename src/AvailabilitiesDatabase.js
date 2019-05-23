@@ -1,4 +1,5 @@
 const { DataSource } = require('apollo-datasource');
+const DataLoader = require('dataloader');
 const moment = require('moment-timezone');
 
 const TIME_ZONE = 'Australia/Sydney';
@@ -6,18 +7,44 @@ const TIME_ZONE = 'Australia/Sydney';
 class AvailabilitiesDatabase extends DataSource {
   constructor(db) {
     super();
+
     this.collection = db.then(connection => connection.collection('availabilities'));
+    this.loader = new DataLoader(keys => this.fetchMultipleMemberAvailabilities(keys));
   }
 
   fetchMemberAvailabilities(member, from, to) {
-    const filter = {
-      member,
-      date: { $gte: from, $lte: to },
-    };
+    return this.loader.load({ member, from, to });
+  }
+
+  fetchMultipleMemberAvailabilities(filters) {
+    // Batch up queries with the same date range and get all members availabilities.
+    const batches = new Map();
+
+    for (const { member, from, to } of filters) {
+      const key = `${moment(from).format('YYYY-MM-DD')}-${moment(to).format('YYYY-MM-DD')}`;
+
+      if (batches.has(key)) {
+        batches.get(key).members.push(member);
+      } else {
+        batches.set(key, { from, to, members: [member] });
+      }
+    }
 
     return this.collection
-      .then(collection => collection.find(filter))
-      .then(availabilities => availabilities.toArray());
+      .then(collection => (
+        Promise.all(Array.from(batches, ([, { from, to, members }]) => (
+          collection.find({
+            member: { $in: members },
+            date: { $gte: from, $lte: to },
+          }).toArray()
+        )))
+      ))
+      .then(results => results.flat())
+      .then(results => filters.map(filter => results.filter(result => (
+        result.member === filter.member
+        && result.date.getTime() >= filter.from.getTime()
+        && result.date.getTime() <= filter.to.getTime()
+      ))));
   }
 
   fetchMembersAvailable(instant) {
