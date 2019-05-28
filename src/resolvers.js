@@ -35,6 +35,7 @@ module.exports = {
     },
     loggedInMember: (_source, _args, { member }) => member,
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
+    shiftTeams: (_source, _args, { dataSources }) => dataSources.roster.fetchShiftTeams('WOL'),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {

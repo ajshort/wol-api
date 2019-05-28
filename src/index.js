@@ -8,6 +8,7 @@ const { MongoClient } = require('mongodb');
 const AuthedDirective = require('./AuthedDirective');
 const AvailabilitiesDatabase = require('./AvailabilitiesDatabase');
 const MembersDatabase = require('./MembersDatabase');
+const RosterDatabase = require('./RosterDatabase');
 const resolvers = require('./resolvers');
 
 require('dotenv').config();
@@ -20,6 +21,7 @@ const database = mongo.connect().then(connection => connection.db(process.env.MO
 
 const membersDatabase = new MembersDatabase(database);
 const availabilitiesDatabase = new AvailabilitiesDatabase(database);
+const rosterDatabase = new RosterDatabase(database);
 
 const server = new ApolloServer({
   typeDefs,
@@ -52,8 +54,9 @@ const server = new ApolloServer({
     authed: AuthedDirective,
   },
   dataSources: () => ({
-    members: membersDatabase,
     availabilities: availabilitiesDatabase,
+    members: membersDatabase,
+    roster: rosterDatabase,
   }),
 });
 

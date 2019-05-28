@@ -45,6 +45,11 @@ enum Shift {
   NIGHT
 }
 
+type ShiftTeams {
+  day: String!
+  night: String!
+}
+
 type Query {
   """Gets all members with an optional team filter"""
   members(team: String): [Member!]! @authed
@@ -60,6 +65,9 @@ type Query {
 
   """Gets all teams in the unit"""
   teams: [String!]! @authed
+
+  """Gets the current shift teams"""
+  shiftTeams: ShiftTeams @authed
 }
 
 type AuthPayload {
