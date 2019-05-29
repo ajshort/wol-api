@@ -1,6 +1,7 @@
 const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server-micro');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
 const jwt = require('jsonwebtoken');
+const moment = require('moment-timezone');
 
 module.exports = {
   Date: GraphQLDate,
@@ -25,6 +26,11 @@ module.exports = {
     },
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     membersAvailable: async (_source, { instant }, { dataSources }) => {
+      // Default to the current time.
+      if (!instant) {
+        instant = moment();
+      }
+
       const available = await dataSources.availabilities.fetchMembersAvailable(instant);
 
       if (available.length === 0) {
