@@ -44,3 +44,36 @@ You can then run the remaining queries, such as getting a list of unit members:
     }
 
 Use the "Schema" tab on the right to explore the available queries and fields.
+
+## Example Queries
+
+A week's availablility for an individual member:
+
+    {
+      member(number: 40000000) {
+        fullName
+        team
+        availabilities(from: "2019-01-01", to: "2019-01-08") {
+          date
+          shift
+          available
+        }
+      }
+    }
+
+Set member availability:
+
+    mutation {
+      setAvailabilities(memberNumber: 40000000, availabilities: [
+        {
+          date: "2019-01-01"
+          shift: MORNING
+          available: true
+        }
+        {
+          date: "2019-01-02"
+          shift: AFTERNOON
+          available: false
+        }
+      ])
+    }
