@@ -10,6 +10,7 @@ type Member {
   fullName: String
   givenNames: String
   surname: String
+  mobile: String
   qualifications: [Qualification!]
   team: String
   availabilities(from: Date!, to: Date!): [Availability!]!
