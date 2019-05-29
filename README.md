@@ -77,3 +77,12 @@ Set member availability:
         }
       ])
     }
+
+Members currently available:
+
+    {
+      membersAvailable {
+        fullName
+        mobile
+      }
+    }
