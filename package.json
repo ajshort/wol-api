@@ -19,7 +19,8 @@
     "micro-cors": "^0.1.1",
     "moment": "^2.24.0",
     "moment-timezone": "^0.5.25",
-    "mongodb": "^3.2.4"
+    "mongodb": "^3.2.4",
+    "sha512crypt-node": "^0.1.0"
   },
   "devDependencies": {
     "eslint": "^5.16.0",

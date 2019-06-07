@@ -1,4 +1,5 @@
 const { DataSource } = require('apollo-datasource');
+const { sha512crypt } = require('sha512crypt-node');
 
 const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
 
@@ -82,7 +83,12 @@ class MembersDatabase extends DataSource {
       return false;
     }
 
-    if (password !== 'password') {
+    // Extract the salt from the password.
+    const expected = member.Password;
+    const salt = expected.split('$').filter(s => s.length > 0)[1];
+    const crypted = sha512crypt(password, salt);
+
+    if (crypted !== expected) {
       return false;
     }
 
