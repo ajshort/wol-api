@@ -4,7 +4,7 @@ const moment = require('moment-timezone');
 
 const TIME_ZONE = 'Australia/Sydney';
 
-class AvailabilitiesDatabase extends DataSource {
+class AvailabilitiesDb extends DataSource {
   constructor(db) {
     super();
 
@@ -85,4 +85,4 @@ class AvailabilitiesDatabase extends DataSource {
   }
 }
 
-module.exports = AvailabilitiesDatabase;
+module.exports = AvailabilitiesDb;

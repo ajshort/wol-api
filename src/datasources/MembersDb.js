@@ -45,7 +45,7 @@ function transformMember({ _id, ...record }) {
   };
 }
 
-class MembersDatabase extends DataSource {
+class MembersDb extends DataSource {
   constructor(db) {
     super();
     this.collection = db.then(connection => connection.collection('members'));
@@ -100,4 +100,4 @@ class MembersDatabase extends DataSource {
   }
 }
 
-module.exports = MembersDatabase;
+module.exports = MembersDb;

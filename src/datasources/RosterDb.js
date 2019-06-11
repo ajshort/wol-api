@@ -1,6 +1,6 @@
 const { DataSource } = require('apollo-datasource');
 
-class RosterDatabase extends DataSource {
+class RosterDb extends DataSource {
   constructor(db) {
     super();
     this.collection = db.then(connection => connection.collection('roster'));
@@ -13,4 +13,4 @@ class RosterDatabase extends DataSource {
   }
 }
 
-module.exports = RosterDatabase;
+module.exports = RosterDb;

@@ -6,9 +6,9 @@ const cors = require('micro-cors')();
 const { MongoClient } = require('mongodb');
 
 const AuthedDirective = require('./AuthedDirective');
-const AvailabilitiesDatabase = require('./AvailabilitiesDatabase');
-const MembersDatabase = require('./MembersDatabase');
-const RosterDatabase = require('./RosterDatabase');
+const AvailabilitiesDb = require('./datasources/AvailabilitiesDb');
+const MembersDb = require('./datasources/MembersDb');
+const RosterDb = require('./datasources/RosterDb');
 const VehiclesDb = require('./datasources/VehiclesDb');
 const resolvers = require('./resolvers');
 
@@ -20,9 +20,9 @@ const typeDefs = gql(schema);
 const mongo = new MongoClient(process.env.MONGODB_URL, { useNewUrlParser: true });
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
 
-const membersDatabase = new MembersDatabase(database);
-const availabilitiesDatabase = new AvailabilitiesDatabase(database);
-const rosterDatabase = new RosterDatabase(database);
+const membersDb = new MembersDb(database);
+const availabilitiesDb = new AvailabilitiesDb(database);
+const rosterDb = new RosterDb(database);
 const vehiclesDb = new VehiclesDb(database);
 
 const server = new ApolloServer({
@@ -45,7 +45,7 @@ const server = new ApolloServer({
 
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
-      const member = await membersDatabase.fetchMember(payload.number);
+      const member = await membersDb.fetchMember(payload.number);
 
       return { member, ...context };
     } catch (err) {
@@ -56,9 +56,9 @@ const server = new ApolloServer({
     authed: AuthedDirective,
   },
   dataSources: () => ({
-    availabilities: availabilitiesDatabase,
-    members: membersDatabase,
-    roster: rosterDatabase,
+    availabilities: availabilitiesDb,
+    members: membersDb,
+    roster: rosterDb,
     vehicles: vehiclesDb,
   }),
   playground: true,
