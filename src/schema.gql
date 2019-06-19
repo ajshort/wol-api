@@ -12,6 +12,8 @@ type Member {
   surname: String
   mobile: String
   qualifications: [String!]
+  rank: String
+  position: String
   team: String
   availabilities(from: Date!, to: Date!): [Availability!]!
 }

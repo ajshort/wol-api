@@ -3,6 +3,10 @@ const { sha512crypt } = require('sha512crypt-node');
 
 const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
 
+function filterNone(value) {
+  return value === 'None' ? undefined : value;
+}
+
 function transformMember({ _id, ...record }) {
   // Everyone can at least edit their own availability.
   let permission = 'EDIT_SELF';
@@ -21,6 +25,8 @@ function transformMember({ _id, ...record }) {
     fullName: `${record.Name} ${record.Surname}`,
     mobile: record.Mobile,
     qualifications: [...new Set(record.Quals)],
+    rank: filterNone(record.Rank),
+    position: filterNone(record.Position),
     team: record.Team,
   };
 }
