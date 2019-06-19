@@ -3,24 +3,6 @@ const { sha512crypt } = require('sha512crypt-node');
 
 const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
 
-const QUALIFICATIONS = {
-  'Chainsaw': 'CHAINSAW_CROSSCUT', // eslint-disable-line quote-props
-  'On Land Flood Rescue': 'FLOOD_RESCUE_1',
-  'On Water Flood Rescue': 'FLOOD_RESCUE_2',
-  'In Water Flood Rescue': 'FLOOD_RESCUE_3',
-  'Land Search': 'LAND_SEARCH',
-  'Storm Water Damage': 'STORM_WATER_DAMAGE',
-  'Vertical Rescue': 'VERTICAL_RESCUE',
-};
-
-function transformQualification(qual) {
-  if (typeof QUALIFICATIONS[qual] === 'undefined') {
-    console.error(`Unknown qualification ${qual}`);
-  }
-
-  return QUALIFICATIONS[qual];
-}
-
 function transformMember({ _id, ...record }) {
   // Everyone can at least edit their own availability.
   let permission = 'EDIT_SELF';
@@ -30,8 +12,6 @@ function transformMember({ _id, ...record }) {
   }
 
   // Convert qualifications to enum values.
-  const qualifications = record.Quals.map(transformQualification).filter(qual => qual);
-
   return {
     _id,
     number: parseInt(record.Id, 10),
@@ -40,7 +20,7 @@ function transformMember({ _id, ...record }) {
     surname: record.Surname,
     fullName: `${record.Name} ${record.Surname}`,
     mobile: record.Mobile,
-    qualifications: [...new Set(qualifications)],
+    qualifications: [...new Set(record.Quals)],
     team: record.Team,
   };
 }

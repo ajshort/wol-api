@@ -11,7 +11,7 @@ type Member {
   givenNames: String
   surname: String
   mobile: String
-  qualifications: [Qualification!]
+  qualifications: [String!]
   team: String
   availabilities(from: Date!, to: Date!): [Availability!]!
 }
@@ -20,16 +20,6 @@ enum Permission {
   EDIT_SELF
   EDIT_TEAM
   EDIT_UNIT
-}
-
-enum Qualification {
-  CHAINSAW_CROSSCUT
-  FLOOD_RESCUE_1
-  FLOOD_RESCUE_2
-  FLOOD_RESCUE_3
-  LAND_SEARCH
-  STORM_WATER_DAMAGE
-  VERTICAL_RESCUE
 }
 
 type Availability {
