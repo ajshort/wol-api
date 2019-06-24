@@ -16,13 +16,20 @@ class VehiclesDb extends DataSource {
 
   setVehicleWith(callsign, wth, info) {
     return this.collection.then(vehicles => vehicles.update(
-      { callsign }, { callsign, with: wth, info }, { upsert: true },
+      { callsign },
+      {
+        away: true,
+        callsign,
+        with: wth,
+        info,
+      },
+      { upsert: true },
     ));
   }
 
   returnVehicle(callsign) {
     return this.collection.then(vehicles => vehicles.update(
-      { callsign }, { callsign }, { upsert: true },
+      { callsign }, { callsign, away: false }, { upsert: true },
     ));
   }
 }

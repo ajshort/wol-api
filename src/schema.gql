@@ -45,6 +45,7 @@ type ShiftTeams {
 
 type Vehicle {
   callsign: String!
+  away: Boolean!
   with: String
   info: String
 }
