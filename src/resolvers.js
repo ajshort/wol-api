@@ -88,8 +88,8 @@ module.exports = {
 
       return true;
     },
-    setVehicleWith: async (_source, args, { dataSources }) => {
-      await dataSources.vehicles.setVehicleWith(args.callsign, args.with, args.info);
+    setVehicleAway: async (_source, args, { dataSources }) => {
+      await dataSources.vehicles.setVehicleAway(args.callsign, args.with, args.info);
       return true;
     },
     returnVehicle: async (_source, { callsign }, { dataSources }) => {

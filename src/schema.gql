@@ -93,7 +93,7 @@ type Mutation {
   setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
 
   """Sets who the vehicle is with"""
-  setVehicleWith(callsign: String!, with: String!, info: String): Boolean! @authed
+  setVehicleAway(callsign: String!, with: String, info: String): Boolean! @authed
 
   """Marks a vehicle as returned"""
   returnVehicle(callsign: String!): Boolean! @authed

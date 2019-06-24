@@ -14,7 +14,7 @@ class VehiclesDb extends DataSource {
     return this.collection.then(vehicles => vehicles.findOne({ callsign }));
   }
 
-  setVehicleWith(callsign, wth, info) {
+  setVehicleAway(callsign, wth, info) {
     return this.collection.then(vehicles => vehicles.update(
       { callsign },
       {
