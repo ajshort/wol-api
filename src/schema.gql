@@ -63,6 +63,9 @@ type Query {
   """Gets the current authorised member, or null if not logged in."""
   loggedInMember: Member
 
+  """Gets availabilities across a date range."""
+  availabilities(from: Date!, to: Date!): [Availability!]! @authed
+
   """Gets all teams in the unit"""
   teams: [String!]! @authed
 

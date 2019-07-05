@@ -12,6 +12,12 @@ class AvailabilitiesDb extends DataSource {
     this.loader = new DataLoader(keys => this.fetchMultipleMemberAvailabilities(keys));
   }
 
+  fetchAvailabilities(from, to) {
+    return this.collection.then(collection => (
+      collection.find({ date: { $gte: from, $lte: to } }).toArray()
+    ));
+  }
+
   fetchMemberAvailabilities(member, from, to) {
     return this.loader.load({ member, from, to });
   }

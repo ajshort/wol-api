@@ -40,6 +40,9 @@ module.exports = {
       return dataSources.members.fetchMembers(available);
     },
     loggedInMember: (_source, _args, { member }) => member,
+    availabilities: (_source, { from, to }, { dataSources }) => (
+      dataSources.availabilities.fetchAvailabilities(from, to)
+    ),
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
     shiftTeams: (_source, _args, { dataSources }) => dataSources.roster.fetchShiftTeams('WOL'),
     vehicles: (_source, _args, { dataSources }) => dataSources.vehicles.fetchVehicles(),

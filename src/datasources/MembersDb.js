@@ -1,4 +1,5 @@
 const { DataSource } = require('apollo-datasource');
+const DataLoader = require('dataloader');
 const { sha512crypt } = require('sha512crypt-node');
 
 const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
@@ -34,19 +35,29 @@ function transformMember({ _id, ...record }) {
 class MembersDb extends DataSource {
   constructor(db) {
     super();
+
     this.collection = db.then(connection => connection.collection('members'));
+    this.loader = new DataLoader(keys => this.fetchMembers(keys));
   }
 
   fetchAllMembers() {
     return this.collection.then(members => members.find().map(transformMember).toArray());
   }
 
-  fetchMembers(numbers) {
+  async fetchMembers(numbers) {
     const strings = numbers.map(number => number.toString());
+    const members = await this.collection
+      .then(collection => collection.find({ Id: { $in: strings } }))
+      .then(result => result.map(transformMember).toArray());
 
-    return this
-      .collection.then(members => members.find({ Id: { $in: strings } }))
-      .then(members => members.map(transformMember).toArray());
+    // Order members so they're in the same order.
+    const result = new Array(numbers.length);
+
+    for (let i = 0; i < numbers.length; ++i) {
+      result[i] = members.find(member => member.number === numbers[i]);
+    }
+
+    return result;
   }
 
   fetchTeamMembers(team) {
@@ -56,9 +67,7 @@ class MembersDb extends DataSource {
   }
 
   fetchMember(number) {
-    return this.collection
-      .then(collection => collection.findOne({ Id: number.toString() }))
-      .then(member => (member ? transformMember(member) : null));
+    return this.loader.load(number);
   }
 
   async authenticateMember(number, password) {
