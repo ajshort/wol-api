@@ -58,7 +58,20 @@ module.exports = {
         throw new AuthenticationError('Could not login');
       }
 
-      const token = jwt.sign({ number: memberNumber }, process.env.JWT_SECRET);
+      const token = jwt.sign({
+        iss: 'wol-availability',
+        sub: member.number,
+        aud: ['all'],
+        iat: Date.now(),
+        context: {
+          member: {
+            number: member.number,
+            fullName: member.fullName,
+          },
+          permission: member.permission,
+        },
+      }, process.env.JWT_SECRET);
+
       return { token, member };
     },
     setAvailabilities: async (_source, args, { dataSources, member }) => {
