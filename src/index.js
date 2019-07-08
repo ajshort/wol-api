@@ -45,7 +45,7 @@ const server = new ApolloServer({
 
     try {
       const payload = jwt.verify(token, process.env.JWT_SECRET);
-      const member = await membersDb.fetchMember(payload.number);
+      const member = await membersDb.fetchMember(payload.context.member.number);
 
       return { member, ...context };
     } catch (err) {
