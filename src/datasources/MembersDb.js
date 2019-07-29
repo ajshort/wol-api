@@ -91,7 +91,7 @@ class MembersDb extends DataSource {
   }
 
   fetchTeams() {
-    return this.collection.then(collection => collection.find({ Unit: 'WOL' }).distinct('Team'));
+    return this.collection.then(collection => collection.distinct('Team', { Unit: 'WOL' }));
   }
 }
 
