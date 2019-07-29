@@ -41,7 +41,7 @@ class MembersDb extends DataSource {
   }
 
   fetchAllMembers() {
-    return this.collection.then(members => members.find().map(transformMember).toArray());
+    return this.collection.then(members => members.find({ Unit: 'WOL' }).map(transformMember).toArray());
   }
 
   async fetchMembers(numbers) {
@@ -91,7 +91,7 @@ class MembersDb extends DataSource {
   }
 
   fetchTeams() {
-    return this.collection.then(collection => collection.distinct('Team'));
+    return this.collection.then(collection => collection.find({ Unit: 'WOL' }).distinct('Team'));
   }
 }
 
