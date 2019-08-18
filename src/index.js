@@ -17,7 +17,11 @@ require('dotenv').config();
 const schema = readFileSync(path.join(__dirname, '/schema.gql'), 'utf-8');
 const typeDefs = gql(schema);
 
-const mongo = new MongoClient(process.env.MONGODB_URL, { useNewUrlParser: true });
+const mongo = new MongoClient(process.env.MONGODB_URL, {
+  reconnectTries: 3,
+  reconnectInterval: 500,
+  useNewUrlParser: true,
+});
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
 
 const membersDb = new MembersDb(database);
