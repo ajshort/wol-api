@@ -43,13 +43,6 @@ type ShiftTeams {
   night: String!
 }
 
-type Vehicle {
-  callsign: String!
-  away: Boolean
-  with: String
-  info: String
-}
-
 type Query {
   """Gets all members with an optional team filter"""
   members(team: String): [Member!]! @authed
@@ -71,10 +64,6 @@ type Query {
 
   """Gets the current shift teams"""
   shiftTeams: ShiftTeams @authed
-
-  """Gets all know vehicles and who they are with"""
-  vehicles: [Vehicle!]! @authed
-  vehicle(callsign: String!): Vehicle @authed
 }
 
 type AuthPayload {
@@ -94,10 +83,4 @@ type Mutation {
 
   """Saves availabilities for a member, checking the member has appropriate permissions"""
   setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
-
-  """Sets who the vehicle is with"""
-  setVehicleAway(callsign: String!, with: String, info: String): Boolean! @authed
-
-  """Marks a vehicle as returned"""
-  returnVehicle(callsign: String!): Boolean! @authed
 }

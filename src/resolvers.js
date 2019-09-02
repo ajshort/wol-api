@@ -45,10 +45,6 @@ module.exports = {
     ),
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
     shiftTeams: (_source, _args, { dataSources }) => dataSources.roster.fetchShiftTeams('WOL'),
-    vehicles: (_source, _args, { dataSources }) => dataSources.vehicles.fetchVehicles(),
-    vehicle: (_source, { callsign }, { dataSources }) => (
-      dataSources.vehicles.fetchVehicle(callsign)
-    ),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {
@@ -102,14 +98,6 @@ module.exports = {
 
       await dataSources.availabilities.setAvailabilities(memberNumber, availabilities);
 
-      return true;
-    },
-    setVehicleAway: async (_source, args, { dataSources }) => {
-      await dataSources.vehicles.setVehicleAway(args.callsign, args.with, args.info);
-      return true;
-    },
-    returnVehicle: async (_source, { callsign }, { dataSources }) => {
-      await dataSources.vehicles.returnVehicle(callsign);
       return true;
     },
   },
