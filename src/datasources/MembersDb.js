@@ -40,8 +40,20 @@ class MembersDb extends DataSource {
     this.loader = new DataLoader(keys => this.fetchMembers(keys));
   }
 
-  fetchAllMembers() {
-    return this.collection.then(members => members.find({ Unit: 'WOL' }).map(transformMember).toArray());
+  fetchAllMembers(filter) {
+    return this.collection.then((members) => {
+      const where = { Unit: 'WOL' };
+
+      if (filter && filter.team) {
+        where.Team = filter.team;
+      }
+
+      if (filter && filter.qualifications && filter.qualifications.length > 0) {
+        where.Quals = { $all: filter.qualifications };
+      }
+
+      return members.find(where).map(transformMember).toArray();
+    });
   }
 
   async fetchMembers(numbers) {

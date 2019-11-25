@@ -18,6 +18,14 @@ type Member {
   availabilities(from: Date!, to: Date!): [Availability!]!
 }
 
+input MemberFilter {
+  """An optional team name to filter members by"""
+  team: String
+
+  """Qualification names to filter members by"""
+  qualifications: [String!]
+}
+
 enum Permission {
   EDIT_SELF
   EDIT_TEAM
@@ -57,7 +65,7 @@ type DutyOfficer {
 
 type Query {
   """Gets all members with an optional team filter"""
-  members(team: String): [Member!]! @authed
+  members(filter: MemberFilter): [Member!]! @authed
 
   """Gets a member by number"""
   member(number: Int!): Member @authed

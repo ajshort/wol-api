@@ -22,13 +22,7 @@ module.exports = {
     ),
   },
   Query: {
-    members: (_source, { team }, { dataSources }) => {
-      if (team) {
-        return dataSources.members.fetchTeamMembers(team);
-      }
-
-      return dataSources.members.fetchAllMembers();
-    },
+    members: (_source, { filter }, { dataSources }) => dataSources.members.fetchAllMembers(filter),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     membersAvailable: async (_source, { instant }, { dataSources }) => {
       // Default to the current time.
