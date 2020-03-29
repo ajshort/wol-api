@@ -6,6 +6,11 @@ const moment = require('moment-timezone');
 module.exports = {
   Date: GraphQLDate,
   DateTime: GraphQLDateTime,
+  DutyOfficer: {
+    member: (dutyOfficer, _args, { dataSources }) => (
+      dataSources.members.fetchMember(dutyOfficer.member)
+    ),
+  },
   Availability: {
     member: (availability, _args, { dataSources }) => (
       dataSources.members.fetchMember(availability.member)
@@ -45,6 +50,9 @@ module.exports = {
     ),
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
     shiftTeams: (_source, _args, { dataSources }) => dataSources.roster.fetchShiftTeams('WOL'),
+    dutyOfficers: (_source, args, { dataSources }) => (
+      dataSources.dutyOfficers.fetchDutyOfficers(args.from, args.to)
+    ),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {
@@ -97,6 +105,26 @@ module.exports = {
       }
 
       await dataSources.availabilities.setAvailabilities(memberNumber, availabilities);
+
+      return true;
+    },
+    setDutyOfficer: async (_source, args, { dataSources }) => {
+      const { shift, member, from, to } = args;
+      const { dutyOfficers, members } = dataSources;
+
+      if (shift !== 'DAY' && shift !== 'NIGHT') {
+        throw new UserInputError('Invalid shift');
+      }
+
+      if (!(await members.fetchMember(member))) {
+        throw new UserInputError('Could not find member');
+      }
+
+      if (from >= to) {
+        throw new UserInputError('Invalid date range');
+      }
+
+      await dutyOfficers.setDutyOfficer(shift, member, from, to);
 
       return true;
     },

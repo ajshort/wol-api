@@ -38,9 +38,21 @@ enum Shift {
   NIGHT
 }
 
+enum TeamShift {
+  DAY
+  NIGHT
+}
+
 type ShiftTeams {
   day: String!
   night: String!
+}
+
+type DutyOfficer {
+  shift: TeamShift!
+  from: DateTime!
+  to: DateTime!
+  member: Member!
 }
 
 type Query {
@@ -64,6 +76,9 @@ type Query {
 
   """Gets the current shift teams"""
   shiftTeams: ShiftTeams @authed
+
+  """Gets the scheduled duty officers for a date range"""
+  dutyOfficers(from: DateTime, to: DateTime): [DutyOfficer]! @authed
 }
 
 type AuthPayload {
@@ -83,4 +98,7 @@ type Mutation {
 
   """Saves availabilities for a member, checking the member has appropriate permissions"""
   setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
+
+  """Sets the duty officer for a shift and date range"""
+  setDutyOfficer(shift: TeamShift!, member: Int!, from: DateTime!, to: DateTime!): Boolean @authed
 }

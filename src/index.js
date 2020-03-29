@@ -7,6 +7,7 @@ const { MongoClient } = require('mongodb');
 
 const AuthedDirective = require('./AuthedDirective');
 const AvailabilitiesDb = require('./datasources/AvailabilitiesDb');
+const DutyOfficersDb = require('./datasources/DutyOfficersDb');
 const MembersDb = require('./datasources/MembersDb');
 const RosterDb = require('./datasources/RosterDb');
 const resolvers = require('./resolvers');
@@ -23,8 +24,9 @@ const mongo = new MongoClient(process.env.MONGODB_URL, {
 });
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
 
-const membersDb = new MembersDb(database);
 const availabilitiesDb = new AvailabilitiesDb(database);
+const dutyOfficersDb = new DutyOfficersDb(mongo, database);
+const membersDb = new MembersDb(database);
 const rosterDb = new RosterDb(database);
 
 const server = new ApolloServer({
@@ -59,6 +61,7 @@ const server = new ApolloServer({
   },
   dataSources: () => ({
     availabilities: availabilitiesDb,
+    dutyOfficers: dutyOfficersDb,
     members: membersDb,
     roster: rosterDb,
   }),
