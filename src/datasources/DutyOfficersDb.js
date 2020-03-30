@@ -1,7 +1,5 @@
 const { DataSource } = require('apollo-datasource');
-const moment = require('moment-timezone');
-
-const TIME_ZONE = 'Australia/Sydney';
+const { ObjectID } = require('mongodb');
 
 class DutyOfficersDb extends DataSource {
   constructor(client, db) {
@@ -26,16 +24,32 @@ class DutyOfficersDb extends DataSource {
 
     try {
       // Delete any fully overlapped ranges.
-      collection.deleteMany({
-        from: { $gte: from },
-        to: { $lte: to },
+      await collection.deleteMany({
+        shift, from: { $gte: from }, to: { $lte: to },
       });
 
-      // If an existing range fully overlaps this, split it.
+      // If an existing range fully engulfs this, update the englufer to abut this, and then
+      // copy it after.
+      const engulfing = await collection.findOneAndUpdate(
+        { shift, from: { $lt: from }, to: { $gt: to } },
+        { $set: { to: from } },
+      );
+
+      if (engulfing.value) {
+        await collection.insertOne({ ...engulfing.value, _id: new ObjectID(), from: to });
+      }
 
       // Update an existing range which overlaps the start of this range.
+      await collection.update(
+        { shift, to: { $gt: from, $lte: to } },
+        { $set: { to: from } },
+      );
 
       // Update an existing range which overlaps the end of this range.
+      await collection.update(
+        { shift, from: { $gte: from, $lt: to } },
+        { $set: { from: to } },
+      );
 
       // Insert the range itself.
       collection.insertOne({ shift, from, to, member });
