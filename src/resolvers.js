@@ -53,6 +53,9 @@ module.exports = {
     dutyOfficers: (_source, args, { dataSources }) => (
       dataSources.dutyOfficers.fetchDutyOfficers(args.from, args.to)
     ),
+    dutyOfficersAt: (_source, { instant }, { dataSources }) => (
+      dataSources.dutyOfficers.fetchDutyOfficersAt(instant || new Date())
+    ),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {

@@ -79,6 +79,9 @@ type Query {
 
   """Gets the scheduled duty officers for a date range"""
   dutyOfficers(from: DateTime, to: DateTime): [DutyOfficer]! @authed
+
+  """Gets the duty officers at `instant`, defaulting to now"""
+  dutyOfficersAt(instant: DateTime): [DutyOfficer]! @authed
 }
 
 type AuthPayload {
