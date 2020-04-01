@@ -119,7 +119,7 @@ module.exports = {
         throw new UserInputError('Invalid shift');
       }
 
-      if (!(await members.fetchMember(member))) {
+      if (member !== null && !(await members.fetchMember(member))) {
         throw new UserInputError('Could not find member');
       }
 

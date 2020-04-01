@@ -103,5 +103,5 @@ type Mutation {
   setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
-  setDutyOfficer(shift: TeamShift!, member: Int!, from: DateTime!, to: DateTime!): Boolean @authed
+  setDutyOfficer(shift: TeamShift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
 }

@@ -58,8 +58,10 @@ class DutyOfficersDb extends DataSource {
         { $set: { from: to } },
       );
 
-      // Insert the range itself.
-      collection.insertOne({ shift, from, to, member });
+      // Insert the range itself, unless we don't have a member.
+      if (member !== null) {
+        collection.insertOne({ shift, from, to, member });
+      }
 
       await session.commitTransaction();
       session.endSession();
