@@ -131,7 +131,7 @@ module.exports = {
         throw new UserInputError('Invalid date range');
       }
 
-      await dutyOfficers.setDutyOfficer(shift, member, from, to);
+      await dutyOfficers.setDutyOfficer(shift, args.member, from, to);
 
       return true;
     },
