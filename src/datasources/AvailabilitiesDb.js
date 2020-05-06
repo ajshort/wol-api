@@ -8,7 +8,7 @@ class AvailabilitiesDb extends DataSource {
   constructor(db) {
     super();
 
-    this.collection = db.then(connection => connection.collection('availabilities'));
+    this.collection = db.then(connection => connection.collection('availability_intervals'));
     this.loader = new DataLoader(keys => this.fetchMultipleMemberAvailabilities(keys));
   }
 
