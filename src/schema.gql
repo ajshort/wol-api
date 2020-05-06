@@ -15,7 +15,7 @@ type Member {
   rank: String
   position: String
   team: String
-  availabilities(from: Date!, to: Date!): [Availability!]!
+  availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 }
 
 input MemberFilter {
@@ -32,21 +32,31 @@ enum Permission {
   EDIT_UNIT
 }
 
-type Availability {
+enum StormAvailable {
+  AVAILABLE
+  UNAVAILABLE
+}
+
+enum RescueAvailable {
+  IMMEDIATE
+  SUPPORT
+  UNAVAILABLE
+}
+
+type AvailabilityInterval {
   _id: ID!
   member: Member!
-  date: Date!
-  shift: Shift!
-  available: Boolean!
+
+  start: DateTime!
+  end: DateTime!
+
+  storm: StormAvailable
+  rescue: RescueAvailable
+  vehicle: String
+  note: String
 }
 
 enum Shift {
-  MORNING
-  AFTERNOON
-  NIGHT
-}
-
-enum TeamShift {
   DAY
   NIGHT
 }
@@ -57,7 +67,7 @@ type ShiftTeams {
 }
 
 type DutyOfficer {
-  shift: TeamShift!
+  shift: Shift!
   from: DateTime!
   to: DateTime!
   member: Member!
@@ -75,9 +85,6 @@ type Query {
 
   """Gets the current authorised member, or null if not logged in."""
   loggedInMember: Member
-
-  """Gets availabilities across a date range."""
-  availabilities(from: Date!, to: Date!): [Availability!]! @authed
 
   """Gets all teams in the unit"""
   teams: [String!]! @authed
@@ -98,18 +105,22 @@ type AuthPayload {
 }
 
 input AvailabilityInput {
-  date: Date!
-  shift: Shift!
-  available: Boolean!
+  memberNumber: Int!
+  start: DateTime!
+  end: DateTime!
+  storm: StormAvailable
+  rescue: RescueAvailable
+  vehicle: String
+  note: String
 }
 
 type Mutation {
   """Logs in with a member number and password, and returns a token or an error"""
   login(memberNumber: Int!, password: String!): AuthPayload!
 
-  """Saves availabilities for a member, checking the member has appropriate permissions"""
-  setAvailabilities(memberNumber: Int!, availabilities: [AvailabilityInput]!): Boolean @authed
+  """Saves availabilities checking the member has appropriate permissions"""
+  setAvailabilities(availabilities: [AvailabilityInput]!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
-  setDutyOfficer(shift: TeamShift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
+  setDutyOfficer(shift: Shift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
 }
