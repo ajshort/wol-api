@@ -24,7 +24,7 @@ const mongo = new MongoClient(process.env.MONGODB_URL, {
 });
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
 
-const availabilitiesDb = new AvailabilitiesDb(database);
+const availabilitiesDb = new AvailabilitiesDb(mongo, database);
 const dutyOfficersDb = new DutyOfficersDb(mongo, database);
 const membersDb = new MembersDb(database);
 const rosterDb = new RosterDb(database);

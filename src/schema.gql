@@ -80,9 +80,6 @@ type Query {
   """Gets a member by number"""
   member(number: Int!): Member @authed
 
-  """Gets all members who indicated they're availabile at `instant`, or right now"""
-  membersAvailable(instant: DateTime): [Member!]! @authed
-
   """Gets the current authorised member, or null if not logged in."""
   loggedInMember: Member
 

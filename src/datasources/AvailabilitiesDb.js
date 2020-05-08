@@ -1,93 +1,106 @@
 const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
-const moment = require('moment-timezone');
-
-const TIME_ZONE = 'Australia/Sydney';
+const { DateTime, Interval } = require('luxon');
 
 class AvailabilitiesDb extends DataSource {
-  constructor(db) {
+  constructor(client, db) {
     super();
 
+    this.client = client;
     this.collection = db.then(connection => connection.collection('availability_intervals'));
     this.loader = new DataLoader(keys => this.fetchMultipleMemberAvailabilities(keys));
   }
 
-  fetchAvailabilities(from, to) {
-    return this.collection.then(collection => (
-      collection.find({ date: { $gte: from, $lte: to } }).toArray()
-    ));
-  }
-
-  fetchMemberAvailabilities(member, from, to) {
-    return this.loader.load({ member, from, to });
+  fetchMemberAvailabilities(member, start, end) {
+    return this.loader.load({
+      member,
+      interval: Interval.fromDateTimes(DateTime.fromJSDate(start), DateTime.fromJSDate(end)),
+    });
   }
 
   fetchMultipleMemberAvailabilities(filters) {
-    // Batch up queries with the same date range and get all members availabilities.
+    // Batch up queries with the same interval and get all members availabilities.
     const batches = new Map();
 
-    for (const { member, from, to } of filters) {
-      const key = `${moment(from).format('YYYY-MM-DD')}-${moment(to).format('YYYY-MM-DD')}`;
+    for (const { member, interval } of filters) {
+      const key = interval.toString();
 
       if (batches.has(key)) {
         batches.get(key).members.push(member);
       } else {
-        batches.set(key, { from, to, members: [member] });
+        batches.set(key, { interval, members: [member] });
       }
     }
 
     return this.collection
       .then(collection => (
-        Promise.all(Array.from(batches, ([, { from, to, members }]) => (
+        Promise.all(Array.from(batches, ([, { interval, members }]) => (
           collection.find({
             member: { $in: members },
-            date: { $gte: from, $lte: to },
+            start: { $lte: interval.end.toJSDate() },
+            end: { $gte: interval.start.toJSDate() },
           }).toArray()
         )))
       ))
       .then(results => results.flat())
-      .then(results => filters.map(filter => results.filter(result => (
-        result.member === filter.member
-        && result.date.getTime() >= filter.from.getTime()
-        && result.date.getTime() <= filter.to.getTime()
+      .then(results => filters.map(({ member, interval }) => results.filter(result => (
+        result.member === member
+        && result.start.getTime() <= interval.end.toJSDate()
+        && result.end.getTime() >= interval.start.toJSDate()
       ))));
   }
 
-  fetchMembersAvailable(instant) {
-    let date = moment(instant).tz(TIME_ZONE);
-    let shift;
+  async setAvailabilities(availabilities) {
+    const session = this.client.startSession();
+    const collection = await this.collection;
 
-    // Figure out which shift we're in.
-    if (date.hour() < 6) {
-      date = date.clone().subtract(1, 'day');
-      shift = 'NIGHT';
-    } else if (date.hour() < 12) {
-      shift = 'MORNING';
-    } else if (date.hour() < 18) {
-      shift = 'AFTERNOON';
-    } else {
-      shift = 'NIGHT';
-    }
+    session.startTransaction();
 
-    return this.collection.then(collection => collection.distinct('member', {
-      date: new Date(date.format('YYYY-MM-DD')),
-      shift,
-      available: true,
-    }));
-  }
-
-  setAvailabilities(member, availabilities) {
-    return this.collection.then((collection) => {
-      const bulk = collection.initializeOrderedBulkOp();
-
-      for (const { date, shift, available } of availabilities) {
-        bulk.find({ member, date, shift }).upsert().update({
-          $set: { available },
-        });
+    try {
+      for (const availability of availabilities) {
+        this.setAvailability(collection, availability)
       }
 
-      return bulk.execute();
+      await session.commitTransaction();
+      session.endSession();
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
+  }
+
+  async setAvailability(collection, { memberNumber: member, start, end, ...availability }) {
+    // Delete any fully overlapped ranges.
+    await collection.deleteMany({
+      member, start: { $gte: start }, end: { $lte: end },
     });
+
+    // If an existing range fully engulfs this, update the engulfer to abut this, and then
+    // copy it after.
+    const engulfing = await collection.findOneAndUpdate(
+      { member, start: { $lt: start }, end: { $gt: end } },
+      { $set: { end: start } },
+    );
+
+    if (engulfing.value) {
+      await collection.insertOne({ ...engulfing.value, _id: new ObjectID(), start: end });
+    }
+
+    // Update an existing range which overlaps the start of this range.
+    await collection.update(
+      { member, end: { $gt: start, $lte: end } },
+      { $set: { end: start } },
+    );
+
+    // Update an existing range which overlaps the end of this range.
+    await collection.update(
+      { member, start: { $gte: start, $lt: end } },
+      { $set: { start: end } },
+    );
+
+    // Insert the new value.
+    collection.insertOne({ member, start, end, ...availability });
   }
 }
 

@@ -1,7 +1,7 @@
 const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server-micro');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
+const _ = require('lodash');
 const jwt = require('jsonwebtoken');
-const moment = require('moment-timezone');
 
 module.exports = {
   Date: GraphQLDate,
@@ -17,27 +17,13 @@ module.exports = {
     ),
   },
   Member: {
-    availabilities: (member, { from, to }, { dataSources }) => (
-      dataSources.availabilities.fetchMemberAvailabilities(member.number, from, to)
+    availabilities: (member, { start, end }, { dataSources }) => (
+      dataSources.availabilities.fetchMemberAvailabilities(member.number, start, end)
     ),
   },
   Query: {
     members: (_source, { filter }, { dataSources }) => dataSources.members.fetchAllMembers(filter),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
-    membersAvailable: async (_source, { instant }, { dataSources }) => {
-      // Default to the current time.
-      if (!instant) {
-        instant = moment();
-      }
-
-      const available = await dataSources.availabilities.fetchMembersAvailable(instant);
-
-      if (available.length === 0) {
-        return [];
-      }
-
-      return dataSources.members.fetchMembers(available);
-    },
     loggedInMember: (_source, _args, { member }) => member,
     teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
     shiftTeams: (_source, _args, { dataSources }) => dataSources.roster.fetchShiftTeams('WOL'),
@@ -72,17 +58,22 @@ module.exports = {
 
       return { token, member };
     },
-    setAvailabilities: async (_source, args, { dataSources, member }) => {
-      const { memberNumber, availabilities } = args;
-      const target = await dataSources.members.fetchMember(memberNumber);
+    setAvailabilities: async (_source, args, { dataSources, member: me }) => {
+      const { availabilities } = args;
+      const memberNumbers = _.uniq(availabilities.map(({ memberNumber }) => memberNumber));
+      const members = await dataSources.members.fetchMembers(memberNumbers);
 
-      if (!target) {
-        throw new UserInputError('Could not find member');
-      }
+      // Check permissions.
+      members.forEach((target) => {
+        if (!target) {
+          throw new UserInputError('Could not find member');
+        }
 
-      // Ensure that the member has appropriate permissions.
-      if (memberNumber !== member.number) {
-        switch (member.permission) {
+        if (target.number === me.number) {
+          return;
+        }
+
+        switch (me.permission) {
           case 'EDIT_UNIT':
             break;
 
@@ -96,10 +87,9 @@ module.exports = {
           default:
             throw new ForbiddenError('Not allowed to manage that member\'s availability');
         }
-      }
+      });
 
-      await dataSources.availabilities.setAvailabilities(memberNumber, availabilities);
-
+      await dataSources.availabilities.setAvailabilities(availabilities);
       return true;
     },
     setDutyOfficer: async (_source, args, { dataSources, member }) => {
