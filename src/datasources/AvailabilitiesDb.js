@@ -8,7 +8,7 @@ class AvailabilitiesDb extends DataSource {
 
     this.client = client;
     this.collection = db.then(connection => connection.collection('availability_intervals'));
-    this.loader = new DataLoader(keys => this.fetchMultipleMemberAvailabilities(keys));
+    this.loader = new DataLoader(keys => this.loadMemberAvailabilities(keys));
   }
 
   fetchMemberAvailabilities(member, start, end) {
@@ -18,7 +18,17 @@ class AvailabilitiesDb extends DataSource {
     });
   }
 
-  fetchMultipleMemberAvailabilities(filters) {
+  fetchMembersAvailabilities(members, start, end) {
+    return this.collection.then(collection => (
+      collection.find({
+        member: { $in: members },
+        start: { $lte: end },
+        end: { $gte: start },
+      }).toArray()
+    ));
+  }
+
+  loadMemberAvailabilities(filters) {
     // Batch up queries with the same interval and get all members availabilities.
     const batches = new Map();
 

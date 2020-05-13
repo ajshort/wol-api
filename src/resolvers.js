@@ -96,7 +96,7 @@ module.exports = {
 
       await dataSources.availabilities.setAvailabilities(start, end, memberNumbers, merged.flat());
 
-      return true;
+      return dataSources.availabilities.fetchMembersAvailabilities(memberNumbers, start, end);
     },
     setDutyOfficer: async (_source, args, { dataSources, member }) => {
       const { shift, from, to } = args;
