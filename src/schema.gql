@@ -120,7 +120,7 @@ type Mutation {
   login(memberNumber: Int!, password: String!): AuthPayload!
 
   """Updates availabilities for member(s) over an interval"""
-  setAvailabilities(start: DateTime, end: DateTime!, availabilities: [AvailabilityInput!]!): Boolean @authed
+  setAvailabilities(start: DateTime!, end: DateTime!, availabilities: [AvailabilityInput!]!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
   setDutyOfficer(shift: Shift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
