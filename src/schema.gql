@@ -103,6 +103,10 @@ type AuthPayload {
 
 input AvailabilityInput {
   memberNumber: Int!
+  availabilities: [MemberAvailabilityInput!]!
+}
+
+input MemberAvailabilityInput {
   start: DateTime!
   end: DateTime!
   storm: StormAvailable
@@ -115,8 +119,8 @@ type Mutation {
   """Logs in with a member number and password, and returns a token or an error"""
   login(memberNumber: Int!, password: String!): AuthPayload!
 
-  """Saves availabilities checking the member has appropriate permissions"""
-  setAvailabilities(availabilities: [AvailabilityInput]!): Boolean @authed
+  """Updates availabilities for member(s) over an interval"""
+  setAvailabilities(start: DateTime, end: DateTime!, availabilities: [AvailabilityInput!]!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
   setDutyOfficer(shift: Shift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed

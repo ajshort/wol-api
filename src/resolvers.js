@@ -1,6 +1,7 @@
 const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server-micro');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
 const _ = require('lodash');
+const { DateTime, Interval } = require('luxon');
 const jwt = require('jsonwebtoken');
 
 module.exports = {
@@ -59,37 +60,42 @@ module.exports = {
       return { token, member };
     },
     setAvailabilities: async (_source, args, { dataSources, member: me }) => {
-      const { availabilities } = args;
-      const memberNumbers = _.uniq(availabilities.map(({ memberNumber }) => memberNumber));
+      const { start, end, availabilities } = args;
+
+      const memberNumbers = availabilities.map(entry => entry.memberNumber);
       const members = await dataSources.members.fetchMembers(memberNumbers);
 
       // Check permissions.
-      members.forEach((target) => {
+      for (const target of members) {
         if (!target) {
           throw new UserInputError('Could not find member');
         }
 
-        if (target.number === me.number) {
-          return;
+        if (target.number !== me.number) {
+          switch (me.permission) {
+            case 'EDIT_UNIT':
+              break;
+
+            case 'EDIT_TEAM':
+              if (target.team !== member.team) {
+                throw new ForbiddenError('Not allowed to manage that team\'s availability');
+              }
+              break;
+
+            case 'EDIT_SELF':
+              throw new ForbiddenError('Not allowed to manage that member\'s availability');
+          }
         }
+      }
 
-        switch (me.permission) {
-          case 'EDIT_UNIT':
-            break;
+      const merged = availabilities.map(
+        ({ memberNumber, availabilities }) => availabilities.map(availability => ({
+          member: memberNumber, ...availability
+        }))
+      );
 
-          case 'EDIT_TEAM':
-            if (target.team !== member.team) {
-              throw new ForbiddenError('Not allowed to manage that team\'s availability');
-            }
-            break;
+      await dataSources.availabilities.setAvailabilities(start, end, memberNumbers, merged.flat());
 
-          case 'EDIT_SELF':
-          default:
-            throw new ForbiddenError('Not allowed to manage that member\'s availability');
-        }
-      });
-
-      await dataSources.availabilities.setAvailabilities(availabilities);
       return true;
     },
     setDutyOfficer: async (_source, args, { dataSources, member }) => {

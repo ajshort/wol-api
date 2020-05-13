@@ -50,36 +50,21 @@ class AvailabilitiesDb extends DataSource {
       ))));
   }
 
-  async setAvailabilities(availabilities) {
+  async setAvailabilities(start, end, members, availabilities) {
     const session = this.client.startSession();
     const collection = await this.collection;
 
     session.startTransaction();
 
-    try {
-      for (const availability of availabilities) {
-        this.setAvailability(collection, availability)
-      }
-
-      await session.commitTransaction();
-      session.endSession();
-    } catch (err) {
-      await session.abortTransaction();
-      session.endSession();
-      throw err;
-    }
-  }
-
-  async setAvailability(collection, { memberNumber: member, start, end, ...availability }) {
-    // Delete any fully overlapped ranges.
+    // Delete any engulfed values.
     await collection.deleteMany({
-      member, start: { $gte: start }, end: { $lte: end },
+      member: { $in: members }, start: { $gte: start }, end: { $lte: end },
     });
 
     // If an existing range fully engulfs this, update the engulfer to abut this, and then
     // copy it after.
     const engulfing = await collection.findOneAndUpdate(
-      { member, start: { $lt: start }, end: { $gt: end } },
+      { member: { $in: members }, start: { $lt: start }, end: { $gt: end } },
       { $set: { end: start } },
     );
 
@@ -89,18 +74,29 @@ class AvailabilitiesDb extends DataSource {
 
     // Update an existing range which overlaps the start of this range.
     await collection.update(
-      { member, end: { $gt: start, $lte: end } },
+      { member: { $in: members }, end: { $gt: start, $lte: end } },
       { $set: { end: start } },
     );
 
     // Update an existing range which overlaps the end of this range.
     await collection.update(
-      { member, start: { $gte: start, $lt: end } },
+      { member: { $in: members }, start: { $gte: start, $lt: end } },
       { $set: { start: end } },
     );
 
-    // Insert the new value.
-    collection.insertOne({ member, start, end, ...availability });
+    // Insert the availability values that we have.
+    if (availabilities.length > 0) {
+      await collection.insertMany(availabilities);
+    }
+
+    try {
+      await session.commitTransaction();
+      session.endSession();
+    } catch (err) {
+      await session.abortTransaction();
+      session.endSession();
+      throw err;
+    }
   }
 }
 
