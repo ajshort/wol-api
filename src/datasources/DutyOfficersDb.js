@@ -10,14 +10,12 @@ class DutyOfficersDb extends DataSource {
   }
 
   fetchDutyOfficersAt(instant) {
-    console.log(instant);
     return this.collection.then(collection => (
       collection.find({ from: { $lte: instant }, to: { $gt: instant } }).toArray()
     ));
   }
 
   fetchDutyOfficers(from, to) {
-    console.log(from);
     return this.collection.then(collection => (
       collection.find({ from: { $lte: to }, to: { $gte: from } }).toArray()
     ));
