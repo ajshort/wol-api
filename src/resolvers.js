@@ -92,9 +92,19 @@ module.exports = {
         ({ memberNumber, availabilities }) => availabilities.map(availability => ({
           member: memberNumber, ...availability
         }))
-      );
+      ).flat();
 
-      await dataSources.availabilities.setAvailabilities(start, end, memberNumbers, merged.flat());
+      // Make sure all availabilities are within the interval.
+      for (const availability of merged) {
+        const startInvalid = availability.start >= end || availability.start < start;
+        const endInvalid = availability.end > end || availability.end <= start;
+
+        if (startInvalid || endInvalid) {
+          throw new UserInputError('Availability is not between start and end');
+        }
+      }
+
+      await dataSources.availabilities.setAvailabilities(start, end, memberNumbers, merged);
 
       return dataSources.availabilities.fetchMembersAvailabilities(memberNumbers, start, end);
     },
