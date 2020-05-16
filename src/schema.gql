@@ -22,8 +22,8 @@ input MemberFilter {
   """An optional team name to filter members by"""
   team: String
 
-  """Qualification names to filter members by"""
-  qualifications: [String!]
+  """Filters if the member has any of the qualifications"""
+  qualificationsAny: [String!]
 }
 
 enum Permission {
