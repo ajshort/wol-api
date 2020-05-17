@@ -49,7 +49,7 @@ class MembersDb extends DataSource {
       }
 
       if (filter && filter.qualificationsAny && filter.qualificationsAny.length > 0) {
-        where.Quals = { $any: filter.qualificationsAny };
+        where.Quals = { $in: filter.qualificationsAny };
       }
 
       return members.find(where).map(transformMember).toArray();
