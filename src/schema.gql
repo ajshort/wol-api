@@ -83,6 +83,9 @@ type Query {
   """Gets the current authorised member, or null if not logged in."""
   loggedInMember: Member
 
+  """Gets all members which have some availability (either storm or rescue) at @a instant, defaulting to now"""
+  availableAt(instant: DateTime): [AvailabilityInterval]! @authed
+
   """Gets all teams in the unit"""
   teams: [String!]! @authed
 

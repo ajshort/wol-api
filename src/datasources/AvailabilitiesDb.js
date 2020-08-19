@@ -28,6 +28,19 @@ class AvailabilitiesDb extends DataSource {
     ));
   }
 
+  fetchAvailableAt(instant) {
+    return this.collection.then(collection => (
+      collection.find({
+        start: { $lte: instant },
+        end: { $gt: instant },
+        $or: [
+          { storm: 'AVAILABLE' },
+          { rescue: { $in: ['IMMEDIATE', 'SUPPORT'] } },
+        ],
+      }).toArray()
+    ));
+  }
+
   loadMemberAvailabilities(filters) {
     // Batch up queries with the same interval and get all members availabilities.
     const batches = new Map();
