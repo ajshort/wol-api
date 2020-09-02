@@ -136,11 +136,14 @@ class AvailabilitiesDb extends DataSource {
       ],
     }).toArray();
 
-    // Create a set of all points where availabilities could change.
+    // Create a set of all points where availabilities could change, filtering out ones that fall
+    // outside the bounds.
     const inflections = _.uniq([
       start.getTime(),
       end.getTime(),
-      ...records.flatMap(({ start, end }) => [start.getTime(), end.getTime()])
+      ...records
+        .flatMap(({ start, end }) => [start.getTime(), end.getTime()])
+        .filter(time => time >= start.getTime() && time < end.getTime())
     ]).sort();
 
     // Then go through and generate counts.
@@ -152,7 +155,7 @@ class AvailabilitiesDb extends DataSource {
 
       let storm = 0;
 
-      for (const record of records.filter(record => record.start < end && record.end >= start)) {
+      for (const record of records.filter(record => record.start <= start && record.end > start)) {
         if (record.storm === 'AVAILABLE') {
           storm++;
         }
