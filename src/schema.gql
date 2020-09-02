@@ -73,6 +73,16 @@ type DutyOfficer {
   member: Member!
 }
 
+type AvailabilityCount {
+  start: DateTime!
+  end: DateTime!
+  storm: Int!
+}
+
+type Statistics {
+  counts: [AvailabilityCount!]!
+}
+
 type Query {
   """Gets all members with an optional team filter"""
   members(filter: MemberFilter): [Member!]! @authed
@@ -84,7 +94,7 @@ type Query {
   loggedInMember: Member
 
   """Gets all members which have some availability (either storm or rescue) at @a instant, defaulting to now"""
-  availableAt(instant: DateTime): [AvailabilityInterval]! @authed
+  availableAt(instant: DateTime): [AvailabilityInterval!]! @authed
 
   """Gets all teams in the unit"""
   teams: [String!]! @authed
@@ -97,6 +107,9 @@ type Query {
 
   """Gets the duty officers at `instant`, defaulting to now"""
   dutyOfficersAt(instant: DateTime): [DutyOfficer]! @authed
+
+  """Generates windowed availability stats for a certain period."""
+  statistics(start: DateTime!, end: DateTime!): Statistics! @authed
 }
 
 type AuthPayload {

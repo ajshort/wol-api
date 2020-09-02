@@ -1,5 +1,6 @@
 const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
+const _ = require('lodash');
 const { DateTime, Interval } = require('luxon');
 
 class AvailabilitiesDb extends DataSource {
@@ -120,6 +121,47 @@ class AvailabilitiesDb extends DataSource {
       session.endSession();
       throw err;
     }
+  }
+
+  async fetchStatistics(start, end) {
+    // Get availabilities within the period which have some useful info.
+    const collection = await this.collection;
+    const records = await collection.find({
+      start: { $lte: end },
+      end: { $gte: start },
+      $or: [
+        { storm: 'AVAILABLE' },
+        { rescue: 'IMMEDIATE' },
+        { rescue: 'SUPPORT' },
+      ],
+    }).toArray();
+
+    // Create a set of all points where availabilities could change.
+    const inflections = _.uniq([
+      start.getTime(),
+      end.getTime(),
+      ...records.flatMap(({ start, end }) => [start.getTime(), end.getTime()])
+    ]).sort();
+
+    // Then go through and generate counts.
+    const counts = [];
+
+    for (let i = 1; i < inflections.length; ++i) {
+      const start = new Date(inflections[i - 1]);
+      const end = new Date(inflections[i]);
+
+      let storm = 0;
+
+      for (const record of records.filter(record => record.start < end && record.end >= start)) {
+        if (record.storm === 'AVAILABLE') {
+          storm++;
+        }
+      }
+
+      counts.push({ start, end, storm });
+    }
+
+    return { counts };
   }
 }
 
