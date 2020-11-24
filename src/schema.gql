@@ -15,10 +15,14 @@ type Member {
   rank: String
   position: String
   team: String
+  unit: String
   availabilities(from: Date!, to: Date!): [Availability!]!
 }
 
 input MemberFilter {
+  """A unit to filter teams by"""
+  unit: String
+
   """An optional team name to filter members by"""
   team: String
 
@@ -80,10 +84,10 @@ type Query {
   availabilities(from: Date!, to: Date!): [Availability!]! @authed
 
   """Gets all teams in the unit"""
-  teams: [String!]! @authed
+  teams(unit: String!): [String!]! @authed
 
   """Gets the current shift teams"""
-  shiftTeams: ShiftTeams @authed
+  shiftTeams(unit: String!): ShiftTeams @authed
 
   """Gets the scheduled duty officers for a date range"""
   dutyOfficers(from: DateTime, to: DateTime): [DutyOfficer]! @authed

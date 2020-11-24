@@ -29,6 +29,7 @@ function transformMember({ _id, ...record }) {
     rank: filterNone(record.Rank),
     position: filterNone(record.Position),
     team: record.Team,
+    unit: record.Unit,
   };
 }
 
@@ -42,7 +43,11 @@ class MembersDb extends DataSource {
 
   fetchAllMembers(filter) {
     return this.collection.then((members) => {
-      const where = { Unit: 'WOL' };
+      const where = { };
+
+      if (filter && filter.unit) {
+        where.Unit = filter.unit;
+      }
 
       if (filter && filter.team) {
         where.Team = filter.team;
@@ -102,8 +107,10 @@ class MembersDb extends DataSource {
     return transformMember(member);
   }
 
-  fetchTeams() {
-    return this.collection.then(collection => collection.distinct('Team', { Unit: 'WOL' }));
+  fetchTeams(unit) {
+    return this.collection.then(collection => (
+      collection.distinct('Team', unit !== undefined ? { Unit: unit } : undefined)
+    ));
   }
 }
 
