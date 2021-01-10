@@ -29,8 +29,8 @@ module.exports = {
     availableAt: (_source, { instant }, { dataSources }) => (
       dataSources.availabilities.fetchAvailableAt(instant || new Date())
     ),
-    teams: (_source, _args, { dataSources }) => dataSources.members.fetchTeams(),
-    shiftTeams: (_source, _args, { dataSources }) => dataSources.roster.fetchShiftTeams('WOL'),
+    teams: (_source, args, { dataSources }) => dataSources.members.fetchTeams(args.unit),
+    shiftTeams: (_source, args, { dataSources }) => dataSources.roster.fetchShiftTeams(args.unit),
     dutyOfficers: (_source, args, { dataSources }) => (
       dataSources.dutyOfficers.fetchDutyOfficers(args.from, args.to)
     ),
