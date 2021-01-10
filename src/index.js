@@ -21,6 +21,7 @@ const mongo = new MongoClient(process.env.MONGODB_URL, {
   reconnectTries: 3,
   reconnectInterval: 500,
   useNewUrlParser: true,
+  useUnifiedTopology: true,
 });
 const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
 
