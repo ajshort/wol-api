@@ -16,7 +16,7 @@ type Member {
   rank: String
   position: String
   team: String
-  driverClassification: Int
+  driverLevel: Int
   unit: String
   availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 }

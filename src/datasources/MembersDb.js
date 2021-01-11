@@ -16,6 +16,23 @@ function transformMember({ _id, ...record }) {
     permission = record.Permission;
   }
 
+  // The database uses some numbers for driver classification, map them to actual L1-3.
+  let driverLevel = null;
+
+  switch (record.DriverClassification) {
+    case 2:
+      driverLevel = 1;
+      break;
+    case 3:
+    case 4:
+      driverLevel = 2;
+      break;
+    case 5:
+    case 6:
+      driverLevel = 3;
+      break;
+  }
+
   // Convert qualifications to enum values.
   return {
     _id,
@@ -31,7 +48,7 @@ function transformMember({ _id, ...record }) {
     team: record.Team,
     unit: record.Unit,
     callsign: record.Callsign,
-    driverClassification: record.DriverClassification,
+    driverLevel,
   };
 }
 
