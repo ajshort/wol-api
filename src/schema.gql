@@ -10,11 +10,13 @@ type Member {
   fullName: String
   givenNames: String
   surname: String
+  callsign: String
   mobile: String
   qualifications: [String!]
   rank: String
   position: String
   team: String
+  driverClassification: Int
   unit: String
   availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 }

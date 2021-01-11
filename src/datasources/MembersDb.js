@@ -30,6 +30,8 @@ function transformMember({ _id, ...record }) {
     position: filterNone(record.Position),
     team: record.Team,
     unit: record.Unit,
+    callsign: record.Callsign,
+    driverClassification: record.DriverClassification,
   };
 }
 
