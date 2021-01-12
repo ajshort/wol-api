@@ -26,9 +26,17 @@ module.exports = {
     members: (_source, { filter }, { dataSources }) => dataSources.members.fetchAllMembers(filter),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     loggedInMember: (_source, _args, { member }) => member,
-    availableAt: (_source, { instant }, { dataSources }) => (
-      dataSources.availabilities.fetchAvailableAt(instant || new Date())
-    ),
+    availableAt: async (_source, { instant, filter }, { dataSources }) => {
+      let members = undefined;
+
+      if (filter) {
+        members = await dataSources.members
+          .fetchAllMembers(filter)
+          .then(records => records.map(member => member.number));
+      }
+
+      return await dataSources.availabilities.fetchAvailableAt(instant || new Date(), members);
+    },
     teams: (_source, args, { dataSources }) => dataSources.members.fetchTeams(args.unit),
     shiftTeams: (_source, args, { dataSources }) => dataSources.roster.fetchShiftTeams(args.unit),
     dutyOfficers: (_source, args, { dataSources }) => (

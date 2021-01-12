@@ -29,17 +29,23 @@ class AvailabilitiesDb extends DataSource {
     ));
   }
 
-  fetchAvailableAt(instant) {
-    return this.collection.then(collection => (
-      collection.find({
+  fetchAvailableAt(instant, members) {
+    return this.collection.then(collection => {
+      const filter = {
         start: { $lte: instant },
         end: { $gt: instant },
         $or: [
           { storm: 'AVAILABLE' },
           { rescue: { $in: ['IMMEDIATE', 'SUPPORT'] } },
         ],
-      }).toArray()
-    ));
+      };
+
+      if (typeof members !== 'undefined') {
+        filter.member = { $in: members };
+      }
+
+      return collection.find(filter).toArray()
+    });
   }
 
   loadMemberAvailabilities(filters) {

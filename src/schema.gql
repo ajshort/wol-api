@@ -100,7 +100,7 @@ type Query {
   loggedInMember: Member
 
   """Gets all members which have some availability (either storm or rescue) at @a instant, defaulting to now"""
-  availableAt(instant: DateTime): [AvailabilityInterval!]! @authed
+  availableAt(instant: DateTime, filter: MemberFilter): [AvailabilityInterval!]! @authed
 
   """Gets all teams in the unit"""
   teams(unit: String!): [String!]! @authed
