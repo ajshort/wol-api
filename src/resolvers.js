@@ -91,7 +91,7 @@ module.exports = {
               break;
 
             case 'EDIT_TEAM':
-              if (target.team !== member.team) {
+              if (target.team !== me.team) {
                 throw new ForbiddenError('Not allowed to manage that team\'s availability');
               }
               break;
