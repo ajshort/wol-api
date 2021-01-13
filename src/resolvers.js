@@ -122,6 +122,34 @@ module.exports = {
 
       return dataSources.availabilities.fetchMembersAvailabilities(memberNumbers, start, end);
     },
+    setDefaultAvailability: async (_source, args, { dataSources, member: me }) => {
+      const { memberNumber, start, availabilities } = args;
+      const target = await dataSources.members.fetchMember(memberNumber);
+
+      if (!target) {
+        throw new UserInputError('Could not find member');
+      }
+
+      if (target.number !== me.number) {
+        switch (me.permission) {
+          case 'EDIT_UNIT':
+            break;
+
+          case 'EDIT_TEAM':
+            if (target.team !== me.team) {
+              throw new ForbiddenError('Not allowed to manage that team\'s availability');
+            }
+            break;
+
+          case 'EDIT_SELF':
+            throw new ForbiddenError('Not allowed to manage that member\'s availability');
+        }
+      }
+
+      await dataSources.availabilities.setDefaultAvailabilities(memberNumber, start, availabilities);
+
+      return true;
+    },
     setDutyOfficer: async (_source, args, { dataSources, member }) => {
       const { shift, from, to } = args;
       const { dutyOfficers, members } = dataSources;

@@ -9,6 +9,7 @@ class AvailabilitiesDb extends DataSource {
 
     this.client = client;
     this.collection = db.then(connection => connection.collection('availability_intervals'));
+    this.defaults = db.then(connection => connection.collection('default_availabilities'));
     this.loader = new DataLoader(keys => this.loadMemberAvailabilities(keys));
   }
 
@@ -171,6 +172,20 @@ class AvailabilitiesDb extends DataSource {
     }
 
     return { counts };
+  }
+
+  fetchDefaultAvailabilties(member) {
+    return this.defaults.then(collection => collection.findOne({ member }));
+  }
+
+  async setDefaultAvailabilities(member, start, availabilities) {
+    const defaults = await this.defaults;
+
+    await defaults.updateOne(
+      { member },
+      { $set: { member, start, availabilities } },
+      { upsert: true },
+    );
   }
 }
 
