@@ -187,6 +187,45 @@ class AvailabilitiesDb extends DataSource {
       { upsert: true },
     );
   }
+
+  async applyDefaultAvailability(member, start, end) {
+    const defaults = await this.defaults;
+    const data = await defaults.findOne({ member });
+
+    if (!data) {
+      return false;
+    }
+
+    const bounds = Interval.fromDateTimes(DateTime.fromJSDate(start), DateTime.fromJSDate(end));
+    const origin = DateTime.fromJSDate(data.start);
+
+    // Go through each availability and offset it from the reference start to the proper start.
+    const availabilities = data.availabilities
+      .map((entry) => {
+        const interval = Interval
+          .fromDateTimes(
+            DateTime.fromJSDate(start).plus(DateTime.fromJSDate(entry.start).diff(origin)),
+            DateTime.fromJSDate(start).plus(DateTime.fromJSDate(entry.end).diff(origin)),
+          )
+          .intersection(bounds);
+
+        if (!interval.isValid || interval.isEmpty()) {
+          return null;
+        }
+
+        return {
+          ...entry,
+          member,
+          start: interval.start.toJSDate(),
+          end: interval.end.toJSDate(),
+        };
+      })
+      .filter(entry => entry !== null);
+
+    await this.setAvailabilities(start, end, [member], availabilities);
+
+    return true;
+  }
 }
 
 module.exports = AvailabilitiesDb;

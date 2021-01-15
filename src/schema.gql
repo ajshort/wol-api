@@ -145,7 +145,10 @@ type Mutation {
   setAvailabilities(start: DateTime!, end: DateTime!, availabilities: [AvailabilityInput!]!): [AvailabilityInterval!]! @authed
 
   """Sets the default availability template for a member. This uses a start time, and the data is for a week from then"""
-  setDefaultAvailability(memberNumber: Int!, start: DateTime, availabilities: [MemberAvailabilityInput!]!) : Boolean @authed
+  setDefaultAvailability(memberNumber: Int!, start: DateTime!, availabilities: [MemberAvailabilityInput!]!) : Boolean @authed
+
+  """Reads and applies the default availability start at @a start, returning the resulting availabilities for that week."""
+  applyDefaultAvailability(memberNumber: Int!, start: DateTime!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
   setDutyOfficer(shift: Shift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
