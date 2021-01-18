@@ -62,7 +62,7 @@ type AvailabilityInterval {
   note: String
 }
 
-enum Shift {
+enum TeamShift {
   DAY
   NIGHT
 }
@@ -73,7 +73,7 @@ type ShiftTeams {
 }
 
 type DutyOfficer {
-  shift: Shift!
+  shift: TeamShift!
   from: DateTime!
   to: DateTime!
   member: Member!
@@ -151,5 +151,5 @@ type Mutation {
   applyDefaultAvailability(memberNumber: Int!, start: DateTime!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
-  setDutyOfficer(shift: Shift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
+  setDutyOfficer(shift: TeamShift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
 }
