@@ -18,8 +18,7 @@ const schema = readFileSync(path.join(__dirname, '/schema.gql'), 'utf-8');
 const typeDefs = gql(schema);
 
 const mongo = new MongoClient(process.env.MONGODB_URL, {
-  reconnectTries: 3,
-  reconnectInterval: 500,
+  reconnectTries: 0,
   useNewUrlParser: true,
   useUnifiedTopology: false,
 });
