@@ -19,7 +19,7 @@
     "lodash": "^4.17.20",
     "luxon": "^1.24.1",
     "micro-cors": "^0.1.1",
-    "mongodb": "^3.2.5",
+    "mongodb": "^3.6.3",
     "sha512crypt-node": "^0.1.0"
   },
   "devDependencies": {
