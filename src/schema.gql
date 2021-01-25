@@ -79,10 +79,16 @@ type DutyOfficer {
   member: Member!
 }
 
+type RescueAvailableCount {
+  immediate: Int!
+  support: Int!
+}
+
 type AvailabilityCount {
   start: DateTime!
   end: DateTime!
   storm: Int!
+  vr: RescueAvailableCount!
 }
 
 type Statistics {

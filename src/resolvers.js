@@ -46,7 +46,7 @@ module.exports = {
       dataSources.dutyOfficers.fetchDutyOfficersAt(instant || new Date())
     ),
     statistics: (_source, { start, end }, { dataSources })=> (
-      dataSources.availabilities.fetchStatistics(start, end)
+      dataSources.availabilities.fetchStatistics(start, end, dataSources.members)
     ),
   },
   Mutation: {

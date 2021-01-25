@@ -3,6 +3,12 @@ const DataLoader = require('dataloader');
 const _ = require('lodash');
 const { DateTime, Interval } = require('luxon');
 
+const VERTICAL_RESCUE = 'Vertical Rescue (PUASAR004B/PUASAR032A)';
+const FLOOD_RESCUE_L1 = 'Swiftwater Rescue Awareness (FR L1)';
+const FLOOD_RESCUE_L2 = 'Flood Rescue Boat Operator (FR L2)';
+const FLOOD_RESCUE_L3 = 'Swiftwater Rescue Technician (FR L3)';
+const PAD = 'PAD Operator';
+
 class AvailabilitiesDb extends DataSource {
   constructor(client, db) {
     super();
@@ -130,7 +136,7 @@ class AvailabilitiesDb extends DataSource {
     }
   }
 
-  async fetchStatistics(start, end) {
+  async fetchStatistics(start, end, membersSource) {
     // Get availabilities within the period which have some useful info.
     const collection = await this.collection;
     const records = await collection.find({
@@ -142,6 +148,10 @@ class AvailabilitiesDb extends DataSource {
         { rescue: 'SUPPORT' },
       ],
     }).toArray();
+
+    // Get members of interest.
+    const memberNumbers = _.uniq(records.map(record => record.member));
+    const members = await membersSource.fetchMembers(memberNumbers);
 
     // Create a set of all points where availabilities could change, filtering out ones that fall
     // outside the bounds.
@@ -161,14 +171,32 @@ class AvailabilitiesDb extends DataSource {
       const end = new Date(inflections[i]);
 
       let storm = 0;
+      let vr = { immediate: 0, support: 0 };
 
       for (const record of records.filter(record => record.start <= start && record.end > start)) {
         if (record.storm === 'AVAILABLE') {
           storm++;
         }
+
+        if (record.rescue === 'IMMEDIATE' || record.rescue === 'SUPPORT') {
+          const member = members.find(member => member.number === record.member);
+
+          if (member.qualifications.includes(VERTICAL_RESCUE)) {
+            if (record.rescue === 'IMMEDIATE') {
+              vr.immediate++;
+            } else {
+              vr.support++;
+            }
+          }
+        }
       }
 
-      counts.push({ start, end, storm });
+      counts.push({
+        start,
+        end,
+        storm,
+        vr,
+      });
     }
 
     return { counts };
