@@ -89,6 +89,9 @@ type AvailabilityCount {
   end: DateTime!
   storm: Int!
   vr: RescueAvailableCount!
+  frOnWater: RescueAvailableCount!
+  frInWater: RescueAvailableCount!
+  frOnLand: RescueAvailableCount!
 }
 
 type Statistics {

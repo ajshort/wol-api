@@ -170,12 +170,19 @@ class AvailabilitiesDb extends DataSource {
       const start = new Date(inflections[i - 1]);
       const end = new Date(inflections[i]);
 
-      let storm = 0;
-      let vr = { immediate: 0, support: 0 };
+      const count = {
+        start,
+        end,
+        storm: 0,
+        vr: { immediate: 0, support: 0 },
+        frInWater: { immediate: 0, support: 0 },
+        frOnWater: { immediate: 0, support: 0 },
+        frOnLand: { immediate: 0, support: 0 },
+      };
 
       for (const record of records.filter(record => record.start <= start && record.end > start)) {
         if (record.storm === 'AVAILABLE') {
-          storm++;
+          count.storm++;
         }
 
         if (record.rescue === 'IMMEDIATE' || record.rescue === 'SUPPORT') {
@@ -183,20 +190,42 @@ class AvailabilitiesDb extends DataSource {
 
           if (member.qualifications.includes(VERTICAL_RESCUE)) {
             if (record.rescue === 'IMMEDIATE') {
-              vr.immediate++;
+              count.vr.immediate++;
             } else {
-              vr.support++;
+              count.vr.support++;
+            }
+          }
+
+          const l3 = member.qualifications.includes(FLOOD_RESCUE_L3);
+          const l2 = member.qualifications.includes(FLOOD_RESCUE_L2);
+
+          if (l3) {
+            if (record.rescue === 'IMMEDIATE') {
+              count.frInWater.immediate++;
+            } else {
+              count.frInWater.support++;
+            }
+          }
+
+          if (l2) {
+            if (record.rescue === 'IMMEDIATE') {
+              count.frOnWater.immediate++;
+            } else {
+              count.frOnWater.support++;
+            }
+          }
+
+          if (!l3 && !l2 && member.qualifications.includes(FLOOD_RESCUE_L1)) {
+            if (record.rescue === 'IMMEDIATE') {
+              count.frOnLand.immediate++;
+            } else {
+              count.frOnLand.support++;
             }
           }
         }
       }
 
-      counts.push({
-        start,
-        end,
-        storm,
-        vr,
-      });
+      counts.push(count);
     }
 
     return { counts };
