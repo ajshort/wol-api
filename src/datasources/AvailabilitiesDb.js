@@ -183,7 +183,7 @@ class AvailabilitiesDb extends DataSource {
       for (const record of records.filter(record => record.start <= start && record.end > start)) {
         const member = members.find(member => member.number === record.member);
 
-        if (member.unit === unit && record.storm === 'AVAILABLE') {
+        if ((!unit || member.unit === unit) && record.storm === 'AVAILABLE') {
           count.storm++;
         }
 
