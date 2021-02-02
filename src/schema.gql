@@ -124,7 +124,7 @@ type Query {
   dutyOfficersAt(instant: DateTime): [DutyOfficer]! @authed
 
   """Generates windowed availability stats for a certain period."""
-  statistics(start: DateTime!, end: DateTime!): Statistics! @authed
+  statistics(start: DateTime!, end: DateTime!, unit: String!): Statistics! @authed
 }
 
 type AuthPayload {

@@ -136,7 +136,7 @@ class AvailabilitiesDb extends DataSource {
     }
   }
 
-  async fetchStatistics(start, end, membersSource) {
+  async fetchStatistics(start, end, unit, membersSource) {
     // Get availabilities within the period which have some useful info.
     const collection = await this.collection;
     const records = await collection.find({
@@ -181,13 +181,13 @@ class AvailabilitiesDb extends DataSource {
       };
 
       for (const record of records.filter(record => record.start <= start && record.end > start)) {
-        if (record.storm === 'AVAILABLE') {
+        const member = members.find(member => member.number === record.member);
+
+        if (member.unit === unit && record.storm === 'AVAILABLE') {
           count.storm++;
         }
 
         if (record.rescue === 'IMMEDIATE' || record.rescue === 'SUPPORT') {
-          const member = members.find(member => member.number === record.member);
-
           if (member.qualifications.includes(VERTICAL_RESCUE)) {
             if (record.rescue === 'IMMEDIATE') {
               count.vr.immediate++;
