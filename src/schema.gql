@@ -94,8 +94,19 @@ type AvailabilityCount {
   frOnLand: RescueAvailableCount!
 }
 
+type TeamEnteredCount {
+  team: String!
+
+  members: Int!
+  rescueMembers: Int!
+
+  enteredStorm: Int!
+  enteredRescue: Int!
+}
+
 type Statistics {
   counts: [AvailabilityCount!]!
+  teams: [TeamEnteredCount!]!
 }
 
 type Query {

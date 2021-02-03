@@ -150,8 +150,7 @@ class AvailabilitiesDb extends DataSource {
     }).toArray();
 
     // Get members of interest.
-    const memberNumbers = _.uniq(records.map(record => record.member));
-    const members = await membersSource.fetchMembers(memberNumbers);
+    const members = await membersSource.fetchAllMembers();
 
     // Create a set of all points where availabilities could change, filtering out ones that fall
     // outside the bounds.
@@ -163,8 +162,11 @@ class AvailabilitiesDb extends DataSource {
         .filter(time => time >= start.getTime() && time < end.getTime())
     ]).sort();
 
-    // Then go through and generate counts.
+    // Then go through and generate counts. Also keep track of which members have entered
+    // anything.
     const counts = [];
+    const enteredStorm = new Set();
+    const enteredRescue = new Set();
 
     for (let i = 1; i < inflections.length; ++i) {
       const start = new Date(inflections[i - 1]);
@@ -182,6 +184,13 @@ class AvailabilitiesDb extends DataSource {
 
       for (const record of records.filter(record => record.start <= start && record.end > start)) {
         const member = members.find(member => member.number === record.member);
+
+        if (record.storm) {
+          enteredStorm.add(member.number);
+        }
+        if (record.rescue) {
+          enteredRescue.add(member.number);
+        }
 
         if ((!unit || member.unit === unit) && record.storm === 'AVAILABLE') {
           count.storm++;
@@ -228,7 +237,18 @@ class AvailabilitiesDb extends DataSource {
       counts.push(count);
     }
 
-    return { counts };
+    // Go through and total up the teams.
+    const teams = _
+      .toPairs(_.groupBy(members.filter(member => !unit || member.unit === unit), 'team'))
+      .map(([team, members]) => ({
+        team,
+        members: members.length,
+        rescueMembers: 0,
+        enteredStorm: members.filter(member => enteredStorm.has(member.number)).length,
+        enteredRescue: 0,
+      }));
+
+    return { counts, teams };
   }
 
   fetchDefaultAvailabilties(member) {
