@@ -180,6 +180,11 @@ class AvailabilitiesDb extends DataSource {
       for (const record of records.filter(record => record.start <= start && record.end > start)) {
         const member = members.find(member => member.number === record.member);
 
+        // Maybe the member has resigned
+        if (!member) {
+          continue;
+        }
+
         if (record.storm) {
           enteredStorm.add(member.number);
         }
