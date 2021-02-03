@@ -142,11 +142,6 @@ class AvailabilitiesDb extends DataSource {
     const records = await collection.find({
       start: { $lte: end },
       end: { $gte: start },
-      $or: [
-        { storm: 'AVAILABLE' },
-        { rescue: 'IMMEDIATE' },
-        { rescue: 'SUPPORT' },
-      ],
     }).toArray();
 
     // Get members of interest.
