@@ -19,6 +19,8 @@ const typeDefs = gql(schema);
 
 const mongo = new MongoClient(process.env.MONGODB_URL, {
   autoReconnect: true,
+  reconnectInterval: 2500,
+  reconnectTries: 5,
   useNewUrlParser: true,
   useUnifiedTopology: false,
 });
