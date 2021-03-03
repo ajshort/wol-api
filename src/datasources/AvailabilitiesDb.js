@@ -137,6 +137,8 @@ class AvailabilitiesDb extends DataSource {
   }
 
   async fetchStatistics(start, end, unit, membersSource) {
+    const interval = Interval.fromDateTimes(DateTime.fromJSDate(start), DateTime.fromJSDate(end));
+
     // Get availabilities within the period which have some useful info.
     const collection = await this.collection;
     const records = await collection.find({
@@ -160,7 +162,10 @@ class AvailabilitiesDb extends DataSource {
         continue;
       }
 
-      const duration = (record.end.getTime() - record.start.getTime()) / 1000;
+      const duration = Interval
+        .fromDateTimes(DateTime.fromJSDate(record.start), DateTime.fromJSDate(record.end))
+        .intersection(interval)
+        .count('seconds');
 
       if (record.storm === 'AVAILABLE') {
         summations[record.member].storm += duration;
