@@ -96,17 +96,21 @@ type AvailabilityCount {
 
 type TeamEnteredCount {
   team: String!
-
   members: Int!
-  rescueMembers: Int!
-
   enteredStorm: Int!
-  enteredRescue: Int!
+}
+
+type MemberAvailabilitySum {
+  member: Member
+  storm: Float!
+  rescueImmediate: Float!
+  rescueSupport: Float!
 }
 
 type Statistics {
   counts: [AvailabilityCount!]!
   teams: [TeamEnteredCount!]!
+  members: [MemberAvailabilitySum!]!
 }
 
 type Query {

@@ -147,6 +147,27 @@ class AvailabilitiesDb extends DataSource {
     // Get members of interest.
     const members = await membersSource.fetchAllMembers();
 
+    // Go through and sum up the total available seconds of all members.
+    const summations = {};
+
+    for (const record of records) {
+      if (!(record.member in summations)) {
+        summations[record.member] = { storm: 0, rescueImmediate: 0, rescueSupport: 0 };
+      }
+
+      const duration = (record.end.getTime() - record.start.getTime()) / 1000;
+
+      if (record.storm === 'AVAILABLE') {
+        summations[record.member].storm += duration;
+      }
+
+      if (record.rescue === 'IMMEDIATE') {
+        summations[record.member].rescueImmediate += duration;
+      } else if (record.rescue === 'SUPPORT') {
+        summations[record.member].rescueSupport += duration;
+      }
+    }
+
     // Create a set of all points where availabilities could change, filtering out ones that fall
     // outside the bounds.
     const inflections = _.uniq([
@@ -243,12 +264,14 @@ class AvailabilitiesDb extends DataSource {
       .map(([team, members]) => ({
         team,
         members: members.length,
-        rescueMembers: 0,
         enteredStorm: members.filter(member => enteredStorm.has(member.number)).length,
-        enteredRescue: 0,
       }));
 
-    return { counts, teams };
+    return {
+      counts,
+      teams,
+      members: Object.entries(summations).map(([member, counts]) => ({ member: parseInt(member, 10), ...counts })),
+    };
   }
 
   fetchDefaultAvailabilties(member) {
