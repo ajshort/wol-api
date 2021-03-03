@@ -22,6 +22,11 @@ module.exports = {
       dataSources.availabilities.fetchMemberAvailabilities(member.number, start, end)
     ),
   },
+  MemberAvailabilitySum: {
+    member: (sum, _args, { dataSources }) => (
+      dataSources.members.fetchMember(sum.member)
+    ),
+  },
   Query: {
     members: (_source, { filter }, { dataSources }) => dataSources.members.fetchAllMembers(filter),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
