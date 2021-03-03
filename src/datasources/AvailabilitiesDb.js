@@ -150,9 +150,14 @@ class AvailabilitiesDb extends DataSource {
     // Go through and sum up the total available seconds of all members.
     const summations = {};
 
+    for (const member of members) {
+      summations[member.number] = { storm: 0, rescueImmediate: 0, rescueSupport: 0 };
+    }
+
     for (const record of records) {
+      // Might be a deleted member.
       if (!(record.member in summations)) {
-        summations[record.member] = { storm: 0, rescueImmediate: 0, rescueSupport: 0 };
+        continue;
       }
 
       const duration = (record.end.getTime() - record.start.getTime()) / 1000;
