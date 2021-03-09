@@ -153,7 +153,7 @@ class AvailabilitiesDb extends DataSource {
     const summations = {};
 
     for (const member of members) {
-      summations[member.number] = { storm: 0, rescueImmediate: 0, rescueSupport: 0 };
+      summations[member.number] = { storm: 0, rescueImmediate: 0, rescueSupport: 0, rescueUnavailable: 0 };
     }
 
     for (const record of records) {
@@ -175,6 +175,8 @@ class AvailabilitiesDb extends DataSource {
         summations[record.member].rescueImmediate += duration;
       } else if (record.rescue === 'SUPPORT') {
         summations[record.member].rescueSupport += duration;
+      } else if (record.rescue === 'UNAVAILABLE') {
+        summations[record.member].rescueUnavailable += duration;
       }
     }
 

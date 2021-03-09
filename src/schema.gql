@@ -105,6 +105,7 @@ type MemberAvailabilitySum {
   storm: Float!
   rescueImmediate: Float!
   rescueSupport: Float!
+  rescueUnavailable: Float!
 }
 
 type Statistics {
