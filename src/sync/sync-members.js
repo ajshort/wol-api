@@ -1,10 +1,11 @@
 const axios = require('axios');
+const _ = require('lodash');
 const { MongoClient } = require('mongodb');
 
 require('dotenv').config();
 
 // The unit codes we want to get.
-const UNIT_CODES = ['SEZ-NIC-WOL'];
+const UNIT_CODES = ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'];
 
 (async () => {
   const api = axios.create({
@@ -59,6 +60,12 @@ const UNIT_CODES = ['SEZ-NIC-WOL'];
 
     const response = await api.get(`/people/${id}`);
     const data = response.data;
+
+    // Look up assignments to get the list of units.
+    data.units = await db
+      .collection('units')
+      .find({ id: { $in: data.assignments.map(assignment => assignment.orgUnitId) }, })
+      .toArray();
 
     members.push(data);
   }
