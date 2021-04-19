@@ -1,7 +1,6 @@
 const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
 const { Interval, DateTime } = require('luxon');
-const { sha512crypt } = require('sha512crypt-node');
 
 const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
 
@@ -19,6 +18,16 @@ function transformMember({ _id, ...record }) {
     }
   }
 
+  // See if we can find a mobile.
+  let mobile = null;
+
+  for (const { type, detail } of record.contactDetails) {
+    if (type === 'Personal Mobile Phone' || type === 'Primary Telephone') {
+      mobile = detail;
+      break;
+    }
+  }
+
   // Convert qualifications to enum values.
   return {
     _id,
@@ -29,6 +38,9 @@ function transformMember({ _id, ...record }) {
     preferredName: record.preferredName,
     fullName: `${record.firstName} ${record.lastName}`,
     qualifications,
+    rank: record.ranks.length > 0 ? record.ranks[0] : null,
+    mobile,
+    units: record.units.map(unit => unit.code),
   };
 }
 

@@ -5,8 +5,9 @@ directive @authed on FIELD_DEFINITION
 
 type Member {
   _id: ID!
+
   number: Int!
-  permission: Permission
+  # permission: Permission
 
   firstName: String
   middleName: String
@@ -14,15 +15,16 @@ type Member {
   fullName: String
   preferredName: String
   qualifications: [String!]
-
-  callsign: String
-  mobile: String
   rank: String
-  position: String
-  team: String
-  driverLevel: Int
+  mobile: String
   units: [String!]!
+
   availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
+
+  # callsign: String
+  # position: String
+  # team: String
+  # driverLevel: Int
 }
 
 input MemberFilter {
