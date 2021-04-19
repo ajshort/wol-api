@@ -57,7 +57,7 @@ class MembersDb extends DataSource {
       const where = { };
 
       if (filter && filter.unit) {
-        where.Unit = filter.unit;
+        where['units.code'] = filter.unit;
       }
 
       if (filter && filter.team) {
