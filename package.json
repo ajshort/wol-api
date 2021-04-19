@@ -7,7 +7,8 @@
     "test": "eslint src",
     "start": "micro",
     "dev": "micro-dev --port 4000 --silent",
-    "sync-units": "node ./src/sync/sync-units.js"
+    "sync-units": "node ./src/sync/sync-units.js",
+    "sync-members": "node ./src/sync/sync-members.js"
   },
   "dependencies": {
     "apollo-datasource": "^0.4.0",

@@ -20,7 +20,7 @@ require('dotenv').config();
   // Repeatedly query a list of all units until we have all of them.
   let units = [];
 
-  for (let page = 0; ; ++page) {
+  for (let page = 1; ; ++page) {
     console.log(`Querying units (page ${page})...`);
 
     const response = await api.get('orgUnits', { params: { PageNumber: page, PageSize: 50 } });
