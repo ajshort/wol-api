@@ -6,7 +6,8 @@
   "scripts": {
     "test": "eslint src",
     "start": "micro",
-    "dev": "micro-dev --port 4000 --silent"
+    "dev": "micro-dev --port 4000 --silent",
+    "sync-units": "node ./src/sync/sync-units.js"
   },
   "dependencies": {
     "apollo-datasource": "^0.4.0",
