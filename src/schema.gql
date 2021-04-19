@@ -7,17 +7,21 @@ type Member {
   _id: ID!
   number: Int!
   permission: Permission
+
+  firstName: String
+  middleName: String
+  lastName: String
   fullName: String
-  givenNames: String
-  surname: String
+  preferredName: String
+  qualifications: [String!]
+
   callsign: String
   mobile: String
-  qualifications: [String!]
   rank: String
   position: String
   team: String
   driverLevel: Int
-  unit: String
+  units: [String!]!
   availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 }
 

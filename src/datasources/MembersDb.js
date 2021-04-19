@@ -1,54 +1,34 @@
 const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
+const { Interval, DateTime } = require('luxon');
 const { sha512crypt } = require('sha512crypt-node');
 
 const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
 
-function filterNone(value) {
-  return value === 'None' ? undefined : value;
-}
-
 function transformMember({ _id, ...record }) {
-  // Everyone can at least edit their own availability.
-  let permission = 'EDIT_SELF';
+  // Get all qualifications which are in date.
+  const qualifications = [];
 
-  if (PERMISSIONS.includes(record.Permission)) {
-    permission = record.Permission;
-  }
+  if (record.qualifications) {
+    for (const { startDate, endDate, code } of record.qualifications) {
+      const interval = Interval.fromDateTimes(DateTime.fromISO(startDate), DateTime.fromISO(endDate));
 
-  // The database uses some numbers for driver classification, map them to actual L1-3.
-  let driverLevel = null;
-
-  switch (record.DriverClassification) {
-    case 2:
-      driverLevel = 1;
-      break;
-    case 3:
-    case 4:
-      driverLevel = 2;
-      break;
-    case 5:
-    case 6:
-      driverLevel = 3;
-      break;
+      if (interval.contains(DateTime.local())) {
+        qualifications.push(code);
+      }
+    }
   }
 
   // Convert qualifications to enum values.
   return {
     _id,
-    number: parseInt(record.Id, 10),
-    permission,
-    givenNames: record.Name,
-    surname: record.Surname,
-    fullName: `${record.Name} ${record.Surname}`,
-    mobile: record.Mobile,
-    qualifications: [...new Set(record.Quals)],
-    rank: filterNone(record.Rank),
-    position: filterNone(record.Position),
-    team: record.Team,
-    unit: record.Unit,
-    callsign: record.Callsign,
-    driverLevel,
+    number: parseInt(record.id, 10),
+    firstName: record.firstName,
+    middleName: record.middleName,
+    lastName: record.lastName,
+    preferredName: record.preferredName,
+    fullName: `${record.firstName} ${record.lastName}`,
+    qualifications,
   };
 }
 
