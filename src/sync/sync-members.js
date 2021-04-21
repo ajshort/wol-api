@@ -61,11 +61,15 @@ const UNIT_CODES = ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'];
     const response = await api.get(`/people/${id}`);
     const data = response.data;
 
-    // Look up assignments to get the list of units.
-    data.units = await db
+    // Look up assignments to get the list of units, augmenting with role names.
+    const units = await db
       .collection('units')
       .find({ id: { $in: data.assignments.map(assignment => assignment.orgUnitId) }, })
-      .toArray();
+      .toArray()
+
+    data.units = units.map(unit => ({
+      ...unit, roles: data.roles.filter(role => role.orgUnit.id === unit.id).map(role => role.name)
+    }));
 
     members.push(data);
   }
