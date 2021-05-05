@@ -3,11 +3,17 @@ scalar DateTime
 
 directive @authed on FIELD_DEFINITION
 
+type UnitMembership {
+  code: String!
+  name: String!
+  team: String
+}
+
 type Member {
   _id: ID!
 
   number: Int!
-  # permission: Permission
+  permission: Permission
 
   firstName: String
   middleName: String
@@ -17,14 +23,13 @@ type Member {
   qualifications: [String!]
   rank: String
   mobile: String
-  units: [String!]!
+  units: [UnitMembership!]!
 
   availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 
   # callsign: String
   # position: String
   # team: String
-  # driverLevel: Int
 }
 
 input MemberFilter {

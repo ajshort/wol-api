@@ -40,7 +40,8 @@ function transformMember({ _id, ...record }) {
     qualifications,
     rank: record.ranks.length > 0 ? record.ranks[0] : null,
     mobile,
-    units: record.units.map(unit => unit.code),
+    units: record.units.map(unit => ({ code: unit.code, name: unit.name, team: null })),
+    permission: 'EDIT_SELF',
   };
 }
 
