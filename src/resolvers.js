@@ -86,7 +86,6 @@ module.exports = {
       return await dataSources.availabilities.fetchAvailableAt(instant || new Date(), members);
     },
     teams: (_source, args, { dataSources }) => dataSources.members.fetchTeams(args.unit),
-    shiftTeams: (_source, args, { dataSources }) => dataSources.roster.fetchShiftTeams(args.unit),
     dutyOfficers: (_source, args, { dataSources }) => (
       dataSources.dutyOfficers.fetchDutyOfficers(args.from, args.to)
     ),

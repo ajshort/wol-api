@@ -141,9 +141,6 @@ type Query {
   """Gets all teams in the unit"""
   teams(unit: String!): [String!]! @authed
 
-  """Gets the current shift teams"""
-  shiftTeams(unit: String!): ShiftTeams @authed
-
   """Gets the scheduled duty officers for a date range"""
   dutyOfficers(from: DateTime, to: DateTime): [DutyOfficer]! @authed
 
