@@ -99,21 +99,6 @@ class MembersDb extends DataSource {
     return this.loader.load(number);
   }
 
-  async authenticateMember(number, password) {
-    const collection = await this.collection;
-    const member = await collection.findOne({ id: number.toString() });
-
-    if (!member) {
-      return false;
-    }
-
-    if (password !== process.env.TESTING_PASSWORD) {
-      return false;
-    }
-
-    return transformMember(member);
-  }
-
   fetchTeams(unit) {
     return this.collection.then(collection => (
       collection.distinct('Team', unit !== undefined ? { Unit: unit } : undefined)

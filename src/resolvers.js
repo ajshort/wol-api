@@ -1,8 +1,52 @@
 const { AuthenticationError, ForbiddenError, UserInputError } = require('apollo-server-micro');
+const axios = require('axios').default;
+const axiosCookieJarSupport = require('axios-cookiejar-support').default;
+const cheerio = require('cheerio');
+const decodeHTML = require('decode-html');
+const FormData = require('form-data');
+const querystring = require('querystring');
+const { CookieJar } = require('tough-cookie');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
 const _ = require('lodash');
-const { DateTime, Interval } = require('luxon');
 const jwt = require('jsonwebtoken');
+
+axiosCookieJarSupport(axios);
+
+/**
+ * Authenticates with Beacon login details, returns true on success.
+ */
+async function authenticateWithBeacon(username, password) {
+  const BEACON_URL = 'https://beacon.ses.nsw.gov.au';
+  const IDENTITY_URL = 'https://identity.ses.nsw.gov.au';
+
+  const jar = new CookieJar();
+  const opts = { withCredentials: true, jar };
+
+  const extractModel = (res) => {
+    return JSON.parse(decodeHTML(cheerio.load(res.data)('#modelJson').html()));
+  };
+
+  const { loginUrl, antiForgery } = extractModel(await axios.get(BEACON_URL, opts));
+
+  if (!loginUrl) {
+    return false;
+  }
+
+  const data = {
+    username,
+    password,
+    [antiForgery.name]: antiForgery.value,
+  };
+
+  const res = await axios.post(IDENTITY_URL + loginUrl, querystring.stringify(data), opts);
+  const model = extractModel(res);
+
+  if (!model || model.errorMessage) {
+    return false;
+  }
+
+  return true;
+}
 
 module.exports = {
   Date: GraphQLDate,
@@ -56,10 +100,14 @@ module.exports = {
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {
-      const member = await dataSources.members.authenticateMember(memberNumber, password);
+      if (!await authenticateWithBeacon(memberNumber, password)) {
+        throw new AuthenticationError('Incorrect login details')
+      }
+
+      const member = await dataSources.members.fetchMember(memberNumber);
 
       if (!member) {
-        throw new AuthenticationError('Could not login');
+        throw new AuthenticationError('Could not find logged in member');
       }
 
       const token = jwt.sign({
