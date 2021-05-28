@@ -66,7 +66,8 @@ class MembersDb extends DataSource {
       }
 
       if (filter && filter.qualificationsAny && filter.qualificationsAny.length > 0) {
-        where.Quals = { $in: filter.qualificationsAny };
+        // TODO check for in date
+        where['qualifications.code'] = { $in: filter.qualificationsAny };
       }
 
       return members.find(where).map(transformMember).toArray();
