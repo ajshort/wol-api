@@ -3,7 +3,6 @@ const axios = require('axios').default;
 const axiosCookieJarSupport = require('axios-cookiejar-support').default;
 const cheerio = require('cheerio');
 const decodeHTML = require('decode-html');
-const FormData = require('form-data');
 const querystring = require('querystring');
 const { CookieJar } = require('tough-cookie');
 const { GraphQLDate, GraphQLDateTime } = require('graphql-iso-date');
