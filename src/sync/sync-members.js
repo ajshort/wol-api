@@ -59,7 +59,21 @@ const UNIT_CODES = ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'];
     console.log(`Querying member ${id} (${index + 1}/${ids.size})...`);
 
     const response = await api.get(`/people/${id}`);
-    const data = response.data;
+    const data = _.pick(response.data, [
+      'id',
+      'firstName',
+      'lastName',
+      'preferredName',
+      'assignments',
+      'contactDetails',
+      'ranks',
+      'roles',
+      'qualifications',
+      'units',
+    ]);
+
+    // For some reason ID is a string?
+    data.id = parseInt(data.id, 10);
 
     // Look up assignments to get the list of units, augmenting with role names.
     const units = await db
