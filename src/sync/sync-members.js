@@ -79,10 +79,12 @@ const UNIT_CODES = ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'];
     const units = await db
       .collection('units')
       .find({ id: { $in: data.assignments.map(assignment => assignment.orgUnitId) }, })
-      .toArray()
+      .toArray();
 
     data.units = units.map(unit => ({
-      ...unit, roles: data.roles.filter(role => role.orgUnit.id === unit.id).map(role => role.name)
+      ...unit,
+      roles: data.roles.filter(role => role.orgUnit.id === unit.id).map(role => role.name),
+      team: _.sample(['Alpha', 'Bravo', 'Charlie', 'Delta']),
     }));
 
     members.push(data);
