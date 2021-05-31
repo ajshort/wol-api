@@ -31,7 +31,7 @@ function transformMember({ _id, ...record }) {
   // Convert qualifications to enum values.
   return {
     _id,
-    number: parseInt(record.id, 10),
+    number: record.id,
     firstName: record.firstName,
     middleName: record.middleName,
     lastName: record.lastName,
@@ -40,7 +40,7 @@ function transformMember({ _id, ...record }) {
     qualifications,
     rank: record.ranks.length > 0 ? record.ranks[0] : null,
     mobile,
-    units: record.units.map(unit => ({ code: unit.code, name: unit.name, team: null })),
+    units: record.units,
     permission: 'EDIT_SELF',
   };
 }
@@ -75,9 +75,8 @@ class MembersDb extends DataSource {
   }
 
   async fetchMembers(numbers) {
-    const strings = numbers.map(number => number.toString());
     const members = await this.collection
-      .then(collection => collection.find({ id: { $in: strings } }))
+      .then(collection => collection.find({ id: { $in: numbers } }))
       .then(result => result.map(transformMember).toArray());
 
     // Order members so they're in the same order.
