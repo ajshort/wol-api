@@ -78,12 +78,8 @@ class MembersDb extends DataSource {
     return this.collection.then((members) => {
       const where = { };
 
-      if (filter && filter.unit) {
-        where['units.code'] = filter.unit;
-      }
-
-      if (filter && filter.team) {
-        where.Team = filter.team;
+      if (filter && filter.unitsAny) {
+        where['units.code'] = { $in: filter.unitsAny };
       }
 
       if (filter && filter.qualificationsAny && filter.qualificationsAny.length > 0) {

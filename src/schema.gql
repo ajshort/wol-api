@@ -36,10 +36,7 @@ type Member {
 
 input MemberFilter {
   """A unit to filter teams by"""
-  unit: String
-
-  """An optional team name to filter members by"""
-  team: String
+  unitsAny: [String!]
 
   """Filters if the member has any of the qualifications"""
   qualificationsAny: [String!]
