@@ -28,6 +28,27 @@ function transformMember({ _id, ...record }) {
     }
   }
 
+  // Look up unit roles and figure out permissions.
+  const units = record.units.map(({ roles, ...rest }) => {
+    let permission = 'EDIT_SELF';
+
+    if (
+      roles.includes('SES Administration Officer') ||
+      roles.includes('SES Local Commander') ||
+      roles.includes('SES Unit Commander') ||
+      roles.includes('SES Deputy Unit Commander') ||
+      roles.includes('SES Duty Officer')
+    ) {
+      permission = 'EDIT_UNIT';
+    } else if (
+      roles.includes('SES Team Leader') || roles.includes('SES Deputy Team Leader')
+    ) {
+      permission = 'EDIT_TEAM';
+    }
+
+    return { roles, permission, ...rest };
+  });
+
   // Convert qualifications to enum values.
   return {
     _id,
@@ -40,7 +61,7 @@ function transformMember({ _id, ...record }) {
     qualifications,
     rank: record.ranks.length > 0 ? record.ranks[0] : null,
     mobile,
-    units: record.units,
+    units,
     permission: 'EDIT_SELF',
   };
 }
