@@ -95,6 +95,7 @@ module.exports = {
     statistics: (_source, { start, end, unit }, { dataSources })=> (
       dataSources.availabilities.fetchStatistics(start, end, unit, dataSources.members)
     ),
+    qualifications: (_source, _args, { dataSources }) => dataSources.members.fetchQualifications(),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {

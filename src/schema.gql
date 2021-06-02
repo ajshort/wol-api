@@ -77,11 +77,6 @@ enum TeamShift {
   NIGHT
 }
 
-type ShiftTeams {
-  day: String!
-  night: String!
-}
-
 type DutyOfficer {
   shift: TeamShift!
   from: DateTime!
@@ -124,6 +119,11 @@ type Statistics {
   members: [MemberAvailabilitySum!]!
 }
 
+type Qualification {
+  code: String!
+  name: String!
+}
+
 type Query {
   """Gets all members with an optional team filter"""
   members(filter: MemberFilter): [Member!]! @authed
@@ -148,6 +148,9 @@ type Query {
 
   """Generates windowed availability stats for a certain period."""
   statistics(start: DateTime!, end: DateTime!, unit: String): Statistics! @authed
+
+  """Gets a list of all available qualifications"""
+  qualifications: [Qualification!]!
 }
 
 type AuthPayload {

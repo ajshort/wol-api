@@ -121,6 +121,20 @@ class MembersDb extends DataSource {
       collection.distinct('Team', unit !== undefined ? { Unit: unit } : undefined)
     ));
   }
+
+  fetchQualifications() {
+    return this.collection.then(collection => {
+      return collection.aggregate([
+        { $unwind: '$qualifications' },
+        { $replaceWith: '$qualifications' },
+        { $group: {
+          _id: { code: '$code' },
+          code: { $first: '$code' },
+          name: { $first: '$text' }
+        } }
+      ]).toArray();
+    });
+  }
 }
 
 module.exports = MembersDb;
