@@ -7,6 +7,7 @@
     "test": "eslint src",
     "start": "micro",
     "dev": "micro-dev --port 4000 --silent",
+    "sync-all": "npm run sync-units && npm run sync-members",
     "sync-units": "node ./src/sync/sync-units.js",
     "sync-members": "node ./src/sync/sync-members.js"
   },
