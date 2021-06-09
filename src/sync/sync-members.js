@@ -5,7 +5,11 @@ const { MongoClient } = require('mongodb');
 require('dotenv').config();
 
 // The unit codes we want to get.
-const UNIT_CODES = ['SEZ-NIC-WOL', 'SEZ-NIC-DPT'];
+const UNIT_CODES = [
+  'SEZ-NIC-WOL',
+  'SEZ-NIC-DPT',
+  'STR-SHQ-OSU',
+];
 
 (async () => {
   const api = axios.create({
