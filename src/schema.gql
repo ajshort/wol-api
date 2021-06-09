@@ -3,6 +3,12 @@ scalar DateTime
 
 directive @authed on FIELD_DEFINITION
 
+enum Permission {
+  EDIT_SELF
+  EDIT_TEAM
+  EDIT_UNIT
+}
+
 type UnitMembership {
   code: String!
   name: String!
@@ -28,10 +34,6 @@ type Member {
   units: [UnitMembership!]!
 
   availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
-
-  # callsign: String
-  # position: String
-  # team: String
 }
 
 input MemberFilter {
@@ -40,12 +42,6 @@ input MemberFilter {
 
   """Filters if the member has any of the qualifications"""
   qualificationsAny: [String!]
-}
-
-enum Permission {
-  EDIT_SELF
-  EDIT_TEAM
-  EDIT_UNIT
 }
 
 enum StormAvailable {
@@ -72,13 +68,7 @@ type AvailabilityInterval {
   note: String
 }
 
-enum TeamShift {
-  DAY
-  NIGHT
-}
-
 type DutyOfficer {
-  shift: TeamShift!
   from: DateTime!
   to: DateTime!
   member: Member!
@@ -141,10 +131,10 @@ type Query {
   teams(unit: String!): [String!]! @authed
 
   """Gets the scheduled duty officers for a date range"""
-  dutyOfficers(from: DateTime, to: DateTime): [DutyOfficer]! @authed
+  dutyOfficers(unitCode: String!, from: DateTime, to: DateTime): [DutyOfficer]! @authed
 
   """Gets the duty officers at `instant`, defaulting to now"""
-  dutyOfficersAt(instant: DateTime): [DutyOfficer]! @authed
+  dutyOfficersAt(unitCode: String!, instant: DateTime): [DutyOfficer]! @authed
 
   """Generates windowed availability stats for a certain period."""
   statistics(start: DateTime!, end: DateTime!, unit: String): Statistics! @authed
@@ -186,5 +176,5 @@ type Mutation {
   applyDefaultAvailability(memberNumber: Int!, start: DateTime!): Boolean @authed
 
   """Sets the duty officer for a shift and date range"""
-  setDutyOfficer(shift: TeamShift!, member: Int, from: DateTime!, to: DateTime!): Boolean @authed
+  setDutyOfficer(unitCode: String!, memberNumber: Int, from: DateTime!, to: DateTime!): Boolean @authed
 }
