@@ -55,47 +55,14 @@ module.exports = {
       dataSources.members.fetchMember(dutyOfficer.member)
     ),
   },
-  AvailabilityInterval: {
-    member: (availability, _args, { dataSources }) => (
-      dataSources.members.fetchMember(availability.member)
-    ),
-  },
-  Member: {
-    availabilities: (member, { start, end }, { dataSources }) => (
-      dataSources.availabilities.fetchMemberAvailabilities(member.number, start, end)
-    ),
-  },
-  MemberAvailabilitySum: {
-    member: (sum, _args, { dataSources }) => (
-      dataSources.members.fetchMember(sum.member)
-    ),
-  },
   Query: {
-    members: (_source, { filter }, { dataSources }) => dataSources.members.fetchAllMembers(filter),
+    units: (_source, { filter }, { dataSources }) => dataSources.units.fetchUnits(filter),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     loggedInMember: (_source, _args, { member }) => member,
-    availableAt: async (_source, { instant, filter }, { dataSources }) => {
-      let members = undefined;
-
-      if (filter) {
-        members = await dataSources.members
-          .fetchAllMembers(filter)
-          .then(records => records.map(member => member.number));
-      }
-
-      return await dataSources.availabilities.fetchAvailableAt(instant || new Date(), members);
-    },
-    teams: (_source, args, { dataSources }) => dataSources.members.fetchTeams(args.unit),
-    dutyOfficers: (_source, args, { dataSources }) => (
-      dataSources.dutyOfficers.fetchDutyOfficers(args.from, args.to)
-    ),
-    dutyOfficersAt: (_source, { instant }, { dataSources }) => (
-      dataSources.dutyOfficers.fetchDutyOfficersAt(instant || new Date())
-    ),
-    statistics: (_source, { start, end, unit }, { dataSources })=> (
-      dataSources.availabilities.fetchStatistics(start, end, unit, dataSources.members)
-    ),
     qualifications: (_source, _args, { dataSources }) => dataSources.members.fetchQualifications(),
+  },
+  Unit: {
+    members: (unit, { filter }, { dataSources }) => dataSources.members.fetchAllMembers({ unitsAny: [unit.code] }),
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {

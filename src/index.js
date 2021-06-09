@@ -9,6 +9,7 @@ const AuthedDirective = require('./AuthedDirective');
 const AvailabilitiesDb = require('./datasources/AvailabilitiesDb');
 const DutyOfficersDb = require('./datasources/DutyOfficersDb');
 const MembersDb = require('./datasources/MembersDb');
+const UnitsDb = require('./datasources/UnitsDb');
 const resolvers = require('./resolvers');
 
 require('dotenv').config();
@@ -29,6 +30,7 @@ const database = mongo.connect().then(connection => connection.db(process.env.MO
 const availabilitiesDb = new AvailabilitiesDb(mongo, database);
 const dutyOfficersDb = new DutyOfficersDb(mongo, database);
 const membersDb = new MembersDb(database);
+const unitsDb = new UnitsDb(database);
 
 const server = new ApolloServer({
   typeDefs,
@@ -64,6 +66,7 @@ const server = new ApolloServer({
     availabilities: availabilitiesDb,
     dutyOfficers: dutyOfficersDb,
     members: membersDb,
+    units: unitsDb,
   }),
   playground: true,
   introspection: true,

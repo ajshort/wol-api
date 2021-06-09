@@ -9,39 +9,40 @@ enum Permission {
   EDIT_UNIT
 }
 
-type UnitMembership {
+type Unit {
+  _id: ID!
   code: String!
   name: String!
-  team: String
-  roles: [String]!
-  permission: Permission
+  teams: [String!]!
+  members: [Member!]!
 }
 
 type Member {
   _id: ID!
-
   number: Int!
-  permission: Permission
 
   firstName: String
   middleName: String
   lastName: String
   fullName: String
   preferredName: String
+  mobile: String
+
   qualifications: [String!]
   rank: String
-  mobile: String
   units: [UnitMembership!]!
-
-  availabilities(start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 }
 
-input MemberFilter {
-  """A unit to filter teams by"""
-  unitsAny: [String!]
+type UnitMembership {
+  unit: Unit!
+  team: String
+  roles: [String]!
+  permission: Permission
+}
 
-  """Filters if the member has any of the qualifications"""
-  qualificationsAny: [String!]
+input UnitFilter {
+  """A list of unit codes to filter by"""
+  codeAny: [String!]
 }
 
 enum StormAvailable {
@@ -57,7 +58,6 @@ enum RescueAvailable {
 
 type AvailabilityInterval {
   _id: ID!
-  member: Member!
 
   start: DateTime!
   end: DateTime!
@@ -69,44 +69,10 @@ type AvailabilityInterval {
 }
 
 type DutyOfficer {
-  from: DateTime!
-  to: DateTime!
-  member: Member!
-}
-
-type RescueAvailableCount {
-  immediate: Int!
-  support: Int!
-}
-
-type AvailabilityCount {
   start: DateTime!
   end: DateTime!
-  storm: Int!
-  vr: RescueAvailableCount!
-  frOnWater: RescueAvailableCount!
-  frInWater: RescueAvailableCount!
-  frOnLand: RescueAvailableCount!
-}
 
-type TeamEnteredCount {
-  team: String!
-  members: Int!
-  enteredStorm: Int!
-}
-
-type MemberAvailabilitySum {
-  member: Member
-  storm: Float!
-  rescueImmediate: Float!
-  rescueSupport: Float!
-  rescueUnavailable: Float!
-}
-
-type Statistics {
-  counts: [AvailabilityCount!]!
-  teams: [TeamEnteredCount!]!
-  members: [MemberAvailabilitySum!]!
+  member: Member!
 }
 
 type Qualification {
@@ -115,29 +81,14 @@ type Qualification {
 }
 
 type Query {
-  """Gets all members with an optional team filter"""
-  members(filter: MemberFilter): [Member!]! @authed
+  """Gets all units in the app"""
+  units(filter: UnitFilter): [Unit!]! @authed
 
   """Gets a member by number"""
   member(number: Int!): Member @authed
 
   """Gets the current authorised member, or null if not logged in."""
   loggedInMember: Member
-
-  """Gets all members which have some availability (either storm or rescue) at @a instant, defaulting to now"""
-  availableAt(instant: DateTime, filter: MemberFilter): [AvailabilityInterval!]! @authed
-
-  """Gets all teams in the unit"""
-  teams(unit: String!): [String!]! @authed
-
-  """Gets the scheduled duty officers for a date range"""
-  dutyOfficers(unitCode: String!, from: DateTime, to: DateTime): [DutyOfficer]! @authed
-
-  """Gets the duty officers at `instant`, defaulting to now"""
-  dutyOfficersAt(unitCode: String!, instant: DateTime): [DutyOfficer]! @authed
-
-  """Generates windowed availability stats for a certain period."""
-  statistics(start: DateTime!, end: DateTime!, unit: String): Statistics! @authed
 
   """Gets a list of all available qualifications"""
   qualifications: [Qualification!]!
@@ -149,13 +100,9 @@ type AuthPayload {
 }
 
 input AvailabilityInput {
-  memberNumber: Int!
-  availabilities: [MemberAvailabilityInput!]!
-}
-
-input MemberAvailabilityInput {
   start: DateTime!
   end: DateTime!
+
   storm: StormAvailable
   rescue: RescueAvailable
   vehicle: String
@@ -167,14 +114,29 @@ type Mutation {
   login(memberNumber: Int!, password: String!): AuthPayload!
 
   """Updates availabilities for member(s) over an interval"""
-  setAvailabilities(start: DateTime!, end: DateTime!, availabilities: [AvailabilityInput!]!): [AvailabilityInterval!]! @authed
+  setAvailabilities(
+    start: DateTime!,
+    end: DateTime!,
+    unitCode: String!,
+    memberNumber: Int!,
+    availabilities: [AvailabilityInput!]!
+  ): Boolean @authed
 
   """Sets the default availability template for a member. This uses a start time, and the data is for a week from then"""
-  setDefaultAvailability(memberNumber: Int!, start: DateTime!, availabilities: [MemberAvailabilityInput!]!) : Boolean @authed
+  setDefaultAvailability(
+    unitCode: String!,
+    memberNumber: Int!,
+    start: DateTime!,
+    availabilities: [AvailabilityInput!]!
+  ) : Boolean @authed
 
   """Reads and applies the default availability start at @a start, returning the resulting availabilities for that week."""
-  applyDefaultAvailability(memberNumber: Int!, start: DateTime!): Boolean @authed
+  applyDefaultAvailability(
+    unitCode: String!,
+    memberNumber: Int!,
+    start: DateTime!
+  ): Boolean @authed
 
-  """Sets the duty officer for a shift and date range"""
+  """Sets the duty officer for a date range"""
   setDutyOfficer(unitCode: String!, memberNumber: Int, from: DateTime!, to: DateTime!): Boolean @authed
 }

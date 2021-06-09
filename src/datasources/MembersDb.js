@@ -2,8 +2,6 @@ const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
 const { Interval, DateTime } = require('luxon');
 
-const PERMISSIONS = ['EDIT_SELF', 'EDIT_TEAM', 'EDIT_UNIT'];
-
 function transformMember({ _id, ...record }) {
   // Get all qualifications which are in date.
   const qualifications = [];
@@ -62,7 +60,6 @@ function transformMember({ _id, ...record }) {
     rank: record.ranks.length > 0 ? record.ranks[0] : null,
     mobile,
     units,
-    permission: 'EDIT_SELF',
   };
 }
 
@@ -104,12 +101,6 @@ class MembersDb extends DataSource {
     }
 
     return result;
-  }
-
-  fetchTeamMembers(team) {
-    return this.collection
-      .then(collection => collection.find({ Team: team }))
-      .then(members => members.map(transformMember).toArray());
   }
 
   fetchMember(number) {
