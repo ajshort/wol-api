@@ -17,7 +17,11 @@ type Unit {
 
   teams: [String!]!
   members: [Member!]!
-  membersWithAvailability(start: DateTime!, end: DateTime!): [MemberWithAvailability!]!
+  membersWithAvailabilities(
+    filter: MemberFilter,
+    start: DateTime!,
+    end: DateTime!
+  ): [MemberWithAvailabilities!]!
 }
 
 type Member {
@@ -45,8 +49,11 @@ type UnitMembership {
 }
 
 input UnitFilter {
-  """A list of unit codes to filter by"""
   codeAny: [String!]
+}
+
+input MemberFilter {
+  qualificationsAny: [String!]!
 }
 
 enum StormAvailable {
@@ -72,7 +79,7 @@ type AvailabilityInterval {
   note: String
 }
 
-type MemberWithAvailability {
+type MemberWithAvailabilities {
   member: Member
   availabilities: [AvailabilityInterval!]!
 }

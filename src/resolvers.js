@@ -63,6 +63,16 @@ module.exports = {
   },
   Unit: {
     members: (unit, { filter }, { dataSources }) => dataSources.members.fetchAllMembers({ unitsAny: [unit.code] }),
+    membersWithAvailabilities: async (unit, { start, end }, { dataSources }) => {
+      const members = await dataSources.members.fetchAllMembers({ unitsAny: [unit.code] });
+      const numbers = members.map(member => member.number);
+      const availabilities = await dataSources.availabilities.fetchMembersAvailabilities(numbers, start, end);
+
+      return members.map((member, i) => ({
+        member,
+        availabilities: availabilities.filter(avail => avail.member === member.number),
+      }));
+    },
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {
