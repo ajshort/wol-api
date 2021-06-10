@@ -62,9 +62,11 @@ module.exports = {
     qualifications: (_source, _args, { dataSources }) => dataSources.members.fetchQualifications(),
   },
   Unit: {
-    members: (unit, { filter }, { dataSources }) => dataSources.members.fetchAllMembers({ unitsAny: [unit.code] }),
-    membersWithAvailabilities: async (unit, { start, end }, { dataSources }) => {
-      const members = await dataSources.members.fetchAllMembers({ unitsAny: [unit.code] });
+    members: (unit, { filter }, { dataSources }) => (
+      dataSources.members.fetchAllMembers({ ...filter, unitsAny: [unit.code] })
+    ),
+    membersWithAvailabilities: async (unit, { start, end, filter }, { dataSources }) => {
+      const members = await dataSources.members.fetchAllMembers({ ...filter, unitsAny: [unit.code] });
       const numbers = members.map(member => member.number);
       const availabilities = await dataSources.availabilities.fetchMembersAvailabilities(numbers, start, end);
 
