@@ -68,9 +68,10 @@ module.exports = {
       const numbers = members.map(member => member.number);
       const availabilities = await dataSources.availabilities.fetchMembersAvailabilities(numbers, start, end);
 
-      return members.map((member, i) => ({
+      return members.map(member => ({
         member,
         availabilities: availabilities.filter(avail => avail.member === member.number),
+        membership: member.units.find(x => x.code === unit.code),
       }));
     },
   },

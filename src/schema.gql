@@ -80,8 +80,9 @@ type AvailabilityInterval {
 }
 
 type MemberWithAvailabilities {
-  member: Member
+  member: Member!
   availabilities: [AvailabilityInterval!]!
+  membership: UnitMembership!
 }
 
 type DutyOfficer {
