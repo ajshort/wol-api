@@ -16,7 +16,7 @@ type Unit {
   name: String!
 
   teams: [String!]!
-  members: [Member!]!
+  members(filter: MemberFilter): [Member!]!
   membersWithAvailabilities(
     filter: MemberFilter,
     start: DateTime!,
@@ -98,7 +98,7 @@ type Qualification {
 }
 
 type Query {
-  """Gets all units in the app"""
+  unit(code: String!): Unit @authed
   units(filter: UnitFilter): [Unit!]! @authed
 
   """Gets a member by number"""
