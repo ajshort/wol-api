@@ -6,6 +6,12 @@ class UnitsDb extends DataSource {
     this.collection = db.then(connection => connection.collection('units'));
   }
 
+  fetchUnit(code) {
+    return this.collection.then(collection => {
+      return collection.findOne({ code });
+    });
+  }
+
   fetchUnits(filter) {
     return this.collection.then(collection => {
       let where = { };

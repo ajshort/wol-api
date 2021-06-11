@@ -56,6 +56,7 @@ module.exports = {
     ),
   },
   Query: {
+    unit: (_source, { code }, { dataSources }) => dataSources.units.fetchUnit(code),
     units: (_source, { filter }, { dataSources }) => dataSources.units.fetchUnits(filter),
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     loggedInMember: (_source, _args, { member }) => member,
