@@ -105,6 +105,25 @@ type Qualification {
   name: String!
 }
 
+type RescueAvailableCount {
+  immediate: Int!
+  support: Int!
+}
+
+type AvailabilityCount {
+  start: DateTime!
+  end: DateTime!
+  storm: Int!
+  vr: RescueAvailableCount!
+  frOnWater: RescueAvailableCount!
+  frInWater: RescueAvailableCount!
+  frOnLand: RescueAvailableCount!
+}
+
+type Statistics {
+  counts: [AvailabilityCount!]!
+}
+
 type Query {
   unit(code: String!): Unit @authed
   units(filter: UnitFilter): [Unit!]! @authed
@@ -119,6 +138,15 @@ type Query {
 
   """Gets a list of all available qualifications"""
   qualifications: [Qualification!]!
+
+  """Generates windowed availability stats for a certain period."""
+  statistics(
+    stormUnitCodes: [String!]!,
+    rescueUnitCodes: [String!]!,
+    start: DateTime!,
+    end: DateTime!,
+    unit: String
+  ): Statistics! @authed
 }
 
 type AuthPayload {

@@ -2,11 +2,10 @@ const { DataSource } = require('apollo-datasource');
 const _ = require('lodash');
 const { DateTime, Interval } = require('luxon');
 
-const VERTICAL_RESCUE = 'Vertical Rescue (PUASAR004B/PUASAR032A)';
-const FLOOD_RESCUE_L1 = 'Swiftwater Rescue Awareness (FR L1)';
-const FLOOD_RESCUE_L2 = 'Flood Rescue Boat Operator (FR L2)';
-const FLOOD_RESCUE_L3 = 'Swiftwater Rescue Technician (FR L3)';
-const PAD = 'PAD Operator';
+const VERTICAL_RESCUE = 'VR-ACC';
+const FLOOD_RESCUE_L1 = 'FRL1-ACC';
+const FLOOD_RESCUE_L2 = 'FRL2-ACC';
+const FLOOD_RESCUE_L3 = 'FRL3-ACC';
 
 class AvailabilitiesDb extends DataSource {
   constructor(client, db) {
@@ -104,18 +103,20 @@ class AvailabilitiesDb extends DataSource {
     }
   }
 
-  async fetchStatistics(start, end, unit, membersSource) {
+  async fetchStatistics(stormUnits, rescueUnits, start, end, membersSource) {
     const interval = Interval.fromDateTimes(DateTime.fromJSDate(start), DateTime.fromJSDate(end));
+    const units = _.uniq(_.concat(stormUnits, rescueUnits));
 
     // Get availabilities within the period which have some useful info.
     const collection = await this.collection;
     const records = await collection.find({
+      unit: { $in: units },
       start: { $lte: end },
       end: { $gte: start },
     }).toArray();
 
     // Get members of interest.
-    const members = await membersSource.fetchAllMembers();
+    const members = await membersSource.fetchAllMembers({ unitsAny: units });
 
     // Go through and sum up the total available seconds of all members.
     const summations = {};
@@ -193,8 +194,12 @@ class AvailabilitiesDb extends DataSource {
           enteredRescue.add(member.number);
         }
 
-        if ((!unit || member.unit === unit) && record.storm === 'AVAILABLE') {
+        if (stormUnits.includes(record.unit) && record.storm === 'AVAILABLE') {
           count.storm++;
+        }
+
+        if (!rescueUnits.includes(record.unit)) {
+          continue;
         }
 
         if (record.rescue === 'IMMEDIATE' || record.rescue === 'SUPPORT') {
@@ -239,17 +244,16 @@ class AvailabilitiesDb extends DataSource {
     }
 
     // Go through and total up the teams.
-    const teams = _
-      .toPairs(_.groupBy(members.filter(member => !unit || member.unit === unit), 'team'))
-      .map(([team, members]) => ({
-        team,
-        members: members.length,
-        enteredStorm: members.filter(member => enteredStorm.has(member.number)).length,
-      }));
+    // const teams = _
+    //   .toPairs(_.groupBy(members.filter(member => !unit || member.unit === unit), 'team'))
+    //   .map(([team, members]) => ({
+    //     team,
+    //     members: members.length,
+    //     enteredStorm: members.filter(member => enteredStorm.has(member.number)).length,
+    //   }));
 
     return {
       counts,
-      teams,
       members: Object.entries(summations).map(([member, counts]) => ({ member: parseInt(member, 10), ...counts })),
     };
   }
