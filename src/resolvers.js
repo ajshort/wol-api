@@ -69,7 +69,7 @@ module.exports = {
     membersWithAvailabilities: async (unit, { start, end, filter }, { dataSources }) => {
       const members = await dataSources.members.fetchAllMembers({ ...filter, unitsAny: [unit.code] });
       const numbers = members.map(member => member.number);
-      const availabilities = await dataSources.availabilities.fetchMembersAvailabilities(numbers, start, end);
+      const availabilities = await dataSources.availabilities.fetchMembersAvailabilities(unit.code, numbers, start, end);
 
       return members.map(member => ({
         member,

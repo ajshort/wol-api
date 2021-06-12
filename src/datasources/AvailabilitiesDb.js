@@ -28,9 +28,10 @@ class AvailabilitiesDb extends DataSource {
     ));
   }
 
-  fetchMembersAvailabilities(members, start, end) {
+  fetchMembersAvailabilities(unit, members, start, end) {
     return this.collection.then(collection => (
       collection.find({
+        unit,
         member: { $in: members },
         start: { $lte: end },
         end: { $gte: start },
