@@ -78,6 +78,11 @@ module.exports = {
       }));
     },
   },
+  Member: {
+    availabilities: (member, { unitCode, start, end }, { dataSources }) => (
+      dataSources.availabilities.fetchMemberAvailabilities(unitCode, member.number, start, end)
+    )
+  },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {
       if (!await authenticateWithBeacon(memberNumber, password)) {

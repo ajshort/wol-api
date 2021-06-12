@@ -38,6 +38,8 @@ type Member {
   qualifications: [String!]
   rank: String
   units: [UnitMembership!]!
+
+  availabilities(unitCode: String!, start: DateTime!, end: DateTime!): [AvailabilityInterval!]!
 }
 
 type UnitMembership {

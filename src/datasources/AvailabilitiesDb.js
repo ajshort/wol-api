@@ -1,5 +1,4 @@
 const { DataSource } = require('apollo-datasource');
-const DataLoader = require('dataloader');
 const _ = require('lodash');
 const { DateTime, Interval } = require('luxon');
 
@@ -16,14 +15,17 @@ class AvailabilitiesDb extends DataSource {
     this.client = client;
     this.collection = db.then(connection => connection.collection('availability_intervals'));
     this.defaults = db.then(connection => connection.collection('default_availabilities'));
-    this.loader = new DataLoader(keys => this.loadMemberAvailabilities(keys));
   }
 
-  fetchMemberAvailabilities(member, start, end) {
-    return this.loader.load({
-      member,
-      interval: Interval.fromDateTimes(DateTime.fromJSDate(start), DateTime.fromJSDate(end)),
-    });
+  fetchMemberAvailabilities(unit, member, start, end) {
+    return this.collection.then(collection => (
+      collection.find({
+        unit,
+        member,
+        start: { $lte: end },
+        end: { $gte: start },
+      }).toArray()
+    ));
   }
 
   fetchMembersAvailabilities(members, start, end) {
@@ -53,38 +55,6 @@ class AvailabilitiesDb extends DataSource {
 
       return collection.find(filter).toArray()
     });
-  }
-
-  loadMemberAvailabilities(filters) {
-    // Batch up queries with the same interval and get all members availabilities.
-    const batches = new Map();
-
-    for (const { member, interval } of filters) {
-      const key = interval.toString();
-
-      if (batches.has(key)) {
-        batches.get(key).members.push(member);
-      } else {
-        batches.set(key, { interval, members: [member] });
-      }
-    }
-
-    return this.collection
-      .then(collection => (
-        Promise.all(Array.from(batches, ([, { interval, members }]) => (
-          collection.find({
-            member: { $in: members },
-            start: { $lte: interval.end.toJSDate() },
-            end: { $gte: interval.start.toJSDate() },
-          }).toArray()
-        )))
-      ))
-      .then(results => results.flat())
-      .then(results => filters.map(({ member, interval }) => results.filter(result => (
-        result.member === member
-        && result.start.getTime() <= interval.end.toJSDate()
-        && result.end.getTime() >= interval.start.toJSDate()
-      ))));
   }
 
   async setAvailabilities(start, end, members, availabilities) {
