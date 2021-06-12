@@ -3,9 +3,4 @@
   "version": 2,
   "builds": [{ "src": "src/index.js", "use": "@now/node" }],
   "routes": [{ "src": "/.*", "dest": "src/index.js" }],
-  "env": {
-    "MONGODB_URL": "@mongodb-url",
-    "MONGODB_DB": "@mongodb-db",
-    "JWT_SECRET": "@jwt-secret"
-  }
 }
