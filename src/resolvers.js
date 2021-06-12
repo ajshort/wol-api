@@ -176,61 +176,70 @@ module.exports = {
     },
     setDefaultAvailability: async (_source, args, { dataSources, member: me }) => {
       const { memberNumber, start, availabilities } = args;
-      const target = await dataSources.members.fetchMember(memberNumber);
 
-      if (!target) {
-        throw new UserInputError('Could not find member');
-      }
+      // // Check permissions.
+      // const member = await dataSources.members.fetchMember(memberNumber);
 
-      if (target.number !== me.number) {
-        switch (me.permission) {
-          case 'EDIT_UNIT':
-            break;
+      // if (!member) {
+      //   throw new UserInputError('Could not find member');
+      // }
 
-          case 'EDIT_TEAM':
-            if (target.team !== me.team) {
-              throw new ForbiddenError('Not allowed to manage that team\'s availability');
-            }
-            break;
+      // const editorMembership = me.units.find(unit => unit.code === unitCode);
+      // const targetMembership = member.units.find(unit => unit.code === unitCode);
 
-          case 'EDIT_SELF':
-            throw new ForbiddenError('Not allowed to manage that member\'s availability');
-        }
-      }
+      // if (!editorMembership || !targetMembership) {
+      //   throw new UserInputError('Could not find members in unit');
+      // }
+
+      // if (member.number !== me.number) {
+      //   switch (editorMembership.permission) {
+      //     case 'EDIT_UNIT':
+      //       break;
+
+      //     case 'EDIT_TEAM':
+      //       if (editorMembership.team !== targetMembership.team) {
+      //         throw new ForbiddenError('Not allowed to manage that team\'s availability');
+      //       }
+      //       break;
+
+      //     default:
+      //       throw new ForbiddenError('Not allowed to manage that member\'s availability');
+      //   }
+      // }
 
       await dataSources.availabilities.setDefaultAvailabilities(memberNumber, start, availabilities);
 
       return true;
     },
     applyDefaultAvailability: async (_source, args, { dataSources, member: me }) => {
-      const { memberNumber, start } = args;
+      const { unitCode, memberNumber, start } = args;
       const target = await dataSources.members.fetchMember(memberNumber);
 
       if (!target) {
         throw new UserInputError('Could not find member');
       }
 
-      if (target.number !== me.number) {
-        switch (me.permission) {
-          case 'EDIT_UNIT':
-            break;
+      // if (target.number !== me.number) {
+      //   switch (me.permission) {
+      //     case 'EDIT_UNIT':
+      //       break;
 
-          case 'EDIT_TEAM':
-            if (target.team !== me.team) {
-              throw new ForbiddenError('Not allowed to manage that team\'s availability');
-            }
-            break;
+      //     case 'EDIT_TEAM':
+      //       if (target.team !== me.team) {
+      //         throw new ForbiddenError('Not allowed to manage that team\'s availability');
+      //       }
+      //       break;
 
-          case 'EDIT_SELF':
-            throw new ForbiddenError('Not allowed to manage that member\'s availability');
-        }
-      }
+      //     case 'EDIT_SELF':
+      //       throw new ForbiddenError('Not allowed to manage that member\'s availability');
+      //   }
+      // }
 
       // We apply for a week.
       const end = new Date(start.valueOf());
       end.setDate(end.getDate() + 7);
 
-      await dataSources.availabilities.applyDefaultAvailability(memberNumber, start, end);
+      await dataSources.availabilities.applyDefaultAvailability(unitCode, memberNumber, start, end);
 
       return true;
     },

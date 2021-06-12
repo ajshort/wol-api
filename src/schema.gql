@@ -151,7 +151,6 @@ type Mutation {
 
   """Sets the default availability template for a member. This uses a start time, and the data is for a week from then"""
   setDefaultAvailability(
-    unitCode: String!,
     memberNumber: Int!,
     start: DateTime!,
     availabilities: [AvailabilityInput!]!

@@ -268,7 +268,7 @@ class AvailabilitiesDb extends DataSource {
     );
   }
 
-  async applyDefaultAvailability(member, start, end) {
+  async applyDefaultAvailability(unit, member, start, end) {
     const defaults = await this.defaults;
     const data = await defaults.findOne({ member });
 
@@ -295,6 +295,7 @@ class AvailabilitiesDb extends DataSource {
 
         return {
           ...entry,
+          unit,
           member,
           start: interval.start.toJSDate(),
           end: interval.end.toJSDate(),
@@ -302,7 +303,7 @@ class AvailabilitiesDb extends DataSource {
       })
       .filter(entry => entry !== null);
 
-    await this.setAvailabilities(start, end, [member], availabilities);
+    await this.setAvailabilities(unit, member, start, end, availabilities);
 
     return true;
   }
