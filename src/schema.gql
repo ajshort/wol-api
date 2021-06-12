@@ -134,12 +134,12 @@ type Mutation {
 
   """Updates availabilities for member(s) over an interval"""
   setAvailabilities(
-    start: DateTime!,
-    end: DateTime!,
     unitCode: String!,
     memberNumber: Int!,
+    start: DateTime!,
+    end: DateTime!,
     availabilities: [AvailabilityInput!]!
-  ): Boolean @authed
+  ): [AvailabilityInterval!]! @authed
 
   """Sets the default availability template for a member. This uses a start time, and the data is for a week from then"""
   setDefaultAvailability(

@@ -112,39 +112,43 @@ module.exports = {
       return { token, member };
     },
     setAvailabilities: async (_source, args, { dataSources, member: me }) => {
-      const { start, end, availabilities } = args;
-
-      const memberNumbers = availabilities.map(entry => entry.memberNumber);
-      const members = await dataSources.members.fetchMembers(memberNumbers);
+      const { start, end, unitCode, memberNumber, availabilities } = args;
 
       // Check permissions.
-      for (const target of members) {
-        if (!target) {
-          throw new UserInputError('Could not find member');
-        }
+      const member = await dataSources.members.fetchMember(memberNumber);
 
-        if (target.number !== me.number) {
-          switch (me.permission) {
-            case 'EDIT_UNIT':
-              break;
+      if (!member) {
+        throw new UserInputError('Could not find member');
+      }
 
-            case 'EDIT_TEAM':
-              if (target.team !== me.team) {
-                throw new ForbiddenError('Not allowed to manage that team\'s availability');
-              }
-              break;
+      console.log(me.units);
 
-            case 'EDIT_SELF':
-              throw new ForbiddenError('Not allowed to manage that member\'s availability');
-          }
+      const editorMembership = me.units.find(unit => unit.code === unitCode);
+      const targetMembership = member.units.find(unit => unit.code === unitCode);
+
+      if (!editorMembership || !targetMembership) {
+        throw new UserInputError('Could not find members in unit');
+      }
+
+      if (member.number !== me.number) {
+        switch (editorMembership.permission) {
+          case 'EDIT_UNIT':
+            break;
+
+          case 'EDIT_TEAM':
+            if (editorMembership.team !== targetMembership.team) {
+              throw new ForbiddenError('Not allowed to manage that team\'s availability');
+            }
+            break;
+
+          default:
+            throw new ForbiddenError('Not allowed to manage that member\'s availability');
         }
       }
 
-      const merged = availabilities.map(
-        ({ memberNumber, availabilities }) => availabilities.map(availability => ({
-          member: memberNumber, ...availability
-        }))
-      ).flat();
+      const merged = availabilities.map(availability => ({
+        member: memberNumber, unit: unitCode, ...availability
+      }));
 
       // Make sure all availabilities are within the interval.
       for (const availability of merged) {
@@ -156,9 +160,9 @@ module.exports = {
         }
       }
 
-      await dataSources.availabilities.setAvailabilities(start, end, memberNumbers, merged);
+      await dataSources.availabilities.setAvailabilities(unitCode, memberNumber, start, end, merged);
 
-      return dataSources.availabilities.fetchMembersAvailabilities(memberNumbers, start, end);
+      return dataSources.availabilities.fetchMemberAvailabilities(unitCode, memberNumber, start, end)
     },
     setDefaultAvailability: async (_source, args, { dataSources, member: me }) => {
       const { memberNumber, start, availabilities } = args;

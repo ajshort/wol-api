@@ -58,7 +58,7 @@ class AvailabilitiesDb extends DataSource {
     });
   }
 
-  async setAvailabilities(start, end, members, availabilities) {
+  async setAvailabilities(unit, member, start, end, availabilities) {
     const session = this.client.startSession();
     const collection = await this.collection;
 
@@ -66,13 +66,13 @@ class AvailabilitiesDb extends DataSource {
 
     // Delete any engulfed values.
     await collection.deleteMany({
-      member: { $in: members }, start: { $gte: start }, end: { $lte: end },
+      unit, member, start: { $gte: start }, end: { $lte: end },
     });
 
     // If an existing range fully engulfs this, update the engulfer to abut this, and then
     // copy it after.
     const engulfing = await collection.findOneAndUpdate(
-      { member: { $in: members }, start: { $lt: start }, end: { $gt: end } },
+      { unit, member, start: { $lt: start }, end: { $gt: end } },
       { $set: { end: start } },
     );
 
@@ -82,13 +82,13 @@ class AvailabilitiesDb extends DataSource {
 
     // Update an existing range which overlaps the start of this range.
     await collection.update(
-      { member: { $in: members }, end: { $gt: start, $lte: end } },
+      { unit, member, end: { $gt: start, $lte: end } },
       { $set: { end: start } },
     );
 
     // Update an existing range which overlaps the end of this range.
     await collection.update(
-      { member: { $in: members }, start: { $gte: start, $lt: end } },
+      { unit, member, start: { $gte: start, $lt: end } },
       { $set: { start: end } },
     );
 
