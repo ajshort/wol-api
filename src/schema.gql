@@ -81,6 +81,12 @@ type AvailabilityInterval {
   note: String
 }
 
+type MemberWithAvailability {
+  member: Member!
+  availability: AvailabilityInterval!
+  membership: UnitMembership!
+}
+
 type MemberWithAvailabilities {
   member: Member!
   availabilities: [AvailabilityInterval!]!
@@ -102,6 +108,8 @@ type Qualification {
 type Query {
   unit(code: String!): Unit @authed
   units(filter: UnitFilter): [Unit!]! @authed
+
+  availableAt(unitCodes: [String!]!, instant: DateTime): [MemberWithAvailability!]! @authed
 
   """Gets a member by number"""
   member(number: Int!): Member @authed

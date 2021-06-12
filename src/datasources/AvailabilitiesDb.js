@@ -39,9 +39,10 @@ class AvailabilitiesDb extends DataSource {
     ));
   }
 
-  fetchAvailableAt(instant, members) {
+  fetchAvailableAt(unitCodes, instant) {
     return this.collection.then(collection => {
       const filter = {
+        unit: { $in: unitCodes },
         start: { $lte: instant },
         end: { $gt: instant },
         $or: [
@@ -49,10 +50,6 @@ class AvailabilitiesDb extends DataSource {
           { rescue: { $in: ['IMMEDIATE', 'SUPPORT'] } },
         ],
       };
-
-      if (typeof members !== 'undefined') {
-        filter.member = { $in: members };
-      }
 
       return collection.find(filter).toArray()
     });

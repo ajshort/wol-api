@@ -58,6 +58,18 @@ module.exports = {
   Query: {
     unit: (_source, { code }, { dataSources }) => dataSources.units.fetchUnit(code),
     units: (_source, { filter }, { dataSources }) => dataSources.units.fetchUnits(filter),
+    availableAt: async (_source, { unitCodes, instant }, { dataSources }) => {
+      const availabilities = await dataSources.availabilities.fetchAvailableAt(unitCodes, instant || new Date());
+      const members = await dataSources.members.fetchMembers(availabilities.map(a => a.member));
+
+      return availabilities
+        .map((availability, index) => ({
+          availability,
+          member: members[index],
+          membership: members[index].units.find(x => x.code === availability.unit),
+        }))
+        .filter(({ membership }) => membership !== undefined);
+    },
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     loggedInMember: (_source, _args, { member }) => member,
     qualifications: (_source, _args, { dataSources }) => dataSources.members.fetchQualifications(),
@@ -120,8 +132,6 @@ module.exports = {
       if (!member) {
         throw new UserInputError('Could not find member');
       }
-
-      console.log(me.units);
 
       const editorMembership = me.units.find(unit => unit.code === unitCode);
       const targetMembership = member.units.find(unit => unit.code === unitCode);
