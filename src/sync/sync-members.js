@@ -1,6 +1,7 @@
-const { UNIT_CODES } = require('./config');
+const { QUALIFICATION_CODES, UNIT_CODES } = require('./config');
 
 const axios = require('axios');
+const axiosRetry = require('axios-retry');
 const _ = require('lodash');
 const { MongoClient } = require('mongodb');
 
@@ -11,6 +12,8 @@ require('dotenv').config();
     baseURL: process.env.SES_API_URL,
     headers: { 'Ocp-Apim-Subscription-Key': process.env.SES_API_KEY },
   });
+
+  axiosRetry(api, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
   // Connect to the database.
   const mongo = new MongoClient(process.env.MONGODB_URL, {
@@ -73,6 +76,9 @@ require('dotenv').config();
 
     // For some reason ID is a string?
     data.id = parseInt(data.id, 10);
+
+    // We only care about some qualifications.
+    data.qualifications = data.qualifications.filter(({ code }) => QUALIFICATION_CODES.includes(code));
 
     // Look up assignments to get the list of units, augmenting with role names.
     const units = await db
