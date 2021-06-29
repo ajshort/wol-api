@@ -1,65 +1,59 @@
+const UNITS = require('./units');
+
 const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
-const { Interval, DateTime } = require('luxon');
+
+// A map of SAP to local database qualification names.
+const SAP_QUALIFICATIONS = {
+  'VR-ACC': 'Vertical Rescue (PUASAR004B/PUASAR032A)',
+  'CL1-ACC': 'Chainsaw Operator (Cross-Cut & Limb)',
+  'CL2-ACC': 'Chainsaw Operator (Tree Felling)',
+  'SWDG-ACC': 'Storm and Water Damage Operation',
+  'SAR1-ACC': 'Land Search Team Member',
+  'FRL1-ACC': 'Swiftwater Rescue Awareness (FR L1)',
+  'FRL2-ARCC': 'Flood Rescue Boat Operator (FR L2)',
+  'FRL3-ACC': 'Swiftwater Rescue Technician (FR L3)',
+};
+
+const LOCAL_QUALIFICATIONS = Object.fromEntries(
+  Object.entries(SAP_QUALIFICATIONS).map(([k, v]) => ([v, k]))
+);
 
 function transformMember({ _id, ...record }) {
-  // Get all qualifications which are in date.
-  const qualifications = [];
+  const qualifications = record.Quals
+    .map(qual => LOCAL_QUALIFICATIONS[qual])
+    .filter(qual => qual !== undefined);
 
-  if (record.qualifications) {
-    for (const { startDate, endDate, code } of record.qualifications) {
-      const interval = Interval.fromDateTimes(DateTime.fromISO(startDate), DateTime.fromISO(endDate));
-
-      if (interval.contains(DateTime.local())) {
-        qualifications.push(code);
-      }
-    }
-  }
-
-  // See if we can find a mobile.
-  let mobile = null;
-
-  for (const { type, detail } of record.contactDetails) {
-    if (type === 'Personal Mobile Phone' || type === 'Primary Telephone') {
-      mobile = detail;
+  switch (record.DriverClassification) {
+    case 2:
+      qualifications.push('DRL1-ACC');
       break;
-    }
+    case 3:
+    case 4:
+      qualifications.push('DRL2-ACC');
+      break;
+    case 5:
+    case 6:
+      qualifications.push('DRL3-ACC');
+      break;
   }
 
-  // Look up unit roles and figure out permissions.
-  const units = record.units.map(({ roles, ...rest }) => {
-    let permission = 'EDIT_SELF';
-
-    if (
-      roles.includes('SES Administration Officer') ||
-      roles.includes('SES Local Commander') ||
-      roles.includes('SES Unit Commander') ||
-      roles.includes('SES Deputy Unit Commander') ||
-      roles.includes('SES Duty Officer')
-    ) {
-      permission = 'EDIT_UNIT';
-    } else if (
-      roles.includes('SES Team Leader') || roles.includes('SES Deputy Team Leader')
-    ) {
-      permission = 'EDIT_TEAM';
-    }
-
-    return { roles, permission, ...rest };
-  });
-
-  // Convert qualifications to enum values.
   return {
     _id,
-    number: record.id,
-    firstName: record.firstName,
-    middleName: record.middleName,
-    lastName: record.lastName,
-    preferredName: record.preferredName,
-    fullName: `${record.firstName} ${record.lastName}`,
+    number: parseInt(record.Id, 10),
+    firstName: record.Name,
+    lastName: record.Surname,
+    preferredName: record.Name,
+    fullName: `${record.Name} ${record.Surname}`,
     qualifications,
-    rank: record.ranks.length > 0 ? record.ranks[0] : null,
-    mobile,
-    units,
+    rank: record.Rank,
+    mobile: record.Mobile,
+    units: record.Units.map(unit => ({
+      code: unit.Unit,
+      name: UNITS.find(({ code }) => unit.Unit === code).name,
+      team: unit.Team === 'None' ? null : unit.Team,
+      permission: unit.Permission === 'NONE' ? 'EDIT_SELF' : unit.Permission,
+    })),
   };
 }
 
@@ -76,12 +70,11 @@ class MembersDb extends DataSource {
       const where = { };
 
       if (filter && filter.unitsAny) {
-        where['units.code'] = { $in: filter.unitsAny };
+        where['Units.Unit'] = { $in: filter.unitsAny };
       }
 
       if (filter && filter.qualificationsAny && filter.qualificationsAny.length > 0) {
-        // TODO check for in date
-        where['qualifications.code'] = { $in: filter.qualificationsAny };
+        where['Quals'] = { $in: filter.qualificationsAny.map(qual => SAP_QUALIFICATIONS[qual]) };
       }
 
       return members.find(where).map(transformMember).toArray();
@@ -90,7 +83,7 @@ class MembersDb extends DataSource {
 
   async fetchMembers(numbers) {
     const members = await this.collection
-      .then(collection => collection.find({ id: { $in: numbers } }))
+      .then(collection => collection.find({ Id: { $in: numbers.map(number => number.toString()) } }))
       .then(result => result.map(transformMember).toArray());
 
     // Order members so they're in the same order.

@@ -10,8 +10,6 @@ enum Permission {
 }
 
 type Unit {
-  _id: ID!
-
   code: String!
   name: String!
 
