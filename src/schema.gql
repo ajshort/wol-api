@@ -32,6 +32,7 @@ type Member {
   fullName: String
   preferredName: String
   mobile: String
+  callsign: String
 
   qualifications: [String!]
   rank: String
