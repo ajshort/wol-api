@@ -2,6 +2,7 @@ const UNITS = require('./units');
 
 const { DataSource } = require('apollo-datasource');
 const DataLoader = require('dataloader');
+const { sha512crypt } = require('sha512crypt-node');
 
 // A map of SAP to local database qualification names.
 const SAP_QUALIFICATIONS = {
@@ -119,6 +120,26 @@ class MembersDb extends DataSource {
         } }
       ]).toArray();
     });
+  }
+
+  async authenticateMember(number, password) {
+    const collection = await this.collection;
+    const member = await collection.findOne({ Id: number.toString() });
+
+    if (!member) {
+      return false;
+    }
+
+    // Extract the salt from the password.
+    const expected = member.Password;
+    const salt = expected.split('$').filter(s => s.length > 0)[1];
+    const crypted = sha512crypt(password, salt);
+
+    if (crypted !== expected) {
+      return false;
+    }
+
+    return transformMember(member);
   }
 }
 

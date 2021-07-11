@@ -100,14 +100,10 @@ module.exports = {
   },
   Mutation: {
     login: async (_source, { memberNumber, password }, { dataSources }) => {
-      if (!await authenticateWithBeacon(memberNumber, password)) {
-        throw new AuthenticationError('Incorrect login details')
-      }
-
-      const member = await dataSources.members.fetchMember(memberNumber);
+      const member = await dataSources.members.authenticateMember(memberNumber, password);
 
       if (!member) {
-        throw new AuthenticationError('Could not find logged in member');
+        throw new AuthenticationError('Could not login');
       }
 
       const token = jwt.sign({
