@@ -92,16 +92,16 @@ type MemberWithAvailabilities {
   membership: UnitMembership!
 }
 
-type DutyOfficer {
-  start: DateTime!
-  end: DateTime!
-
-  member: Member!
+enum Shift {
+  DAY
+  NIGHT
 }
 
-type Qualification {
-  code: String!
-  name: String!
+type DutyOfficer {
+  shift: Shift
+  from: DateTime!
+  to: DateTime!
+  member: Member!
 }
 
 type RescueAvailableCount {
@@ -129,14 +129,17 @@ type Query {
 
   availableAt(unitCodes: [String!]!, instant: DateTime): [MemberWithAvailability!]! @authed
 
+  """Gets the scheduled duty officers for a date range"""
+  dutyOfficers(unitCode: String!, from: DateTime!, to: DateTime!): [DutyOfficer]! @authed
+
+  """Gets the duty officers at `instant`, defaulting to now"""
+  dutyOfficersAt(unitCode: String!, instant: DateTime): [DutyOfficer]! @authed
+
   """Gets a member by number"""
   member(number: Int!): Member @authed
 
   """Gets the current authorised member, or null if not logged in."""
   loggedInMember: Member
-
-  """Gets a list of all available qualifications"""
-  qualifications: [Qualification!]!
 
   """Generates windowed availability stats for a certain period."""
   statistics(

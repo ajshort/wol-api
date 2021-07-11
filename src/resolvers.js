@@ -72,7 +72,9 @@ module.exports = {
     },
     member: (_source, { number }, { dataSources }) => dataSources.members.fetchMember(number),
     loggedInMember: (_source, _args, { member }) => member,
-    qualifications: (_source, _args, { dataSources }) => dataSources.members.fetchQualifications(),
+    dutyOfficers: (_source, { unitCode, from, to }, { dataSources }) => (
+      dataSources.dutyOfficers.fetchDutyOfficers(unitCode, from, to)
+    ),
     statistics: (_source, { stormUnitCodes, rescueUnitCodes, start, end }, { dataSources })=> (
       dataSources.availabilities.fetchStatistics(stormUnitCodes, rescueUnitCodes, start, end, dataSources.members)
     ),
