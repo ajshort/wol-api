@@ -21,9 +21,13 @@ const LOCAL_QUALIFICATIONS = Object.fromEntries(
 );
 
 function transformMember({ _id, ...record }) {
-  const qualifications = record.Quals
-    .map(qual => LOCAL_QUALIFICATIONS[qual])
-    .filter(qual => qual !== undefined);
+  const qualifications = record.Quals.map(local => {
+    if (local in LOCAL_QUALIFICATIONS) {
+      return LOCAL_QUALIFICATIONS[local];
+    } else {
+      return local;
+    }
+  })
 
   switch (record.DriverClassification) {
     case 2:
@@ -76,7 +80,13 @@ class MembersDb extends DataSource {
       }
 
       if (filter && filter.qualificationsAny && filter.qualificationsAny.length > 0) {
-        where['Quals'] = { $in: filter.qualificationsAny.map(qual => SAP_QUALIFICATIONS[qual]) };
+        where['Quals'] = { $in: filter.qualificationsAny.map(local => {
+          if (local in SAP_QUALIFICATIONS) {
+            return SAP_QUALIFICATIONS[local];
+          } else {
+            return local;
+          }
+        }) };
       }
 
       return members.find(where).map(transformMember).toArray();
