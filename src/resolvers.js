@@ -245,18 +245,18 @@ module.exports = {
       return true;
     },
     setDutyOfficer: async (_source, args, { dataSources, member }) => {
-      const { shift, from, to } = args;
+      const { unitCode, shift, from, to } = args;
       const { dutyOfficers, members } = dataSources;
 
-      if (member.permission !== 'EDIT_UNIT' && member.permission !== 'EDIT_TEAM') {
-        throw new ForbiddenError('Not allowed to edit duty officer');
-      }
+      // if (member.permission !== 'EDIT_UNIT' && member.permission !== 'EDIT_TEAM') {
+      //   throw new ForbiddenError('Not allowed to edit duty officer');
+      // }
 
       if (shift !== 'DAY' && shift !== 'NIGHT') {
         throw new UserInputError('Invalid shift');
       }
 
-      if (args.member !== null && !(await members.fetchMember(args.member))) {
+      if (args.memberNumber !== null && !(await members.fetchMember(args.memberNumber))) {
         throw new UserInputError('Could not find member');
       }
 
@@ -264,7 +264,7 @@ module.exports = {
         throw new UserInputError('Invalid date range');
       }
 
-      await dutyOfficers.setDutyOfficer(shift, args.member, from, to);
+      await dutyOfficers.setDutyOfficer(unitCode, shift, args.memberNumber, from, to);
 
       return true;
     },

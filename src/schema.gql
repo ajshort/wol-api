@@ -194,5 +194,5 @@ type Mutation {
   ): Boolean @authed
 
   """Sets the duty officer for a date range"""
-  setDutyOfficer(unitCode: String!, memberNumber: Int, from: DateTime!, to: DateTime!): Boolean @authed
+  setDutyOfficer(unitCode: String!, memberNumber: Int, shift: Shift!, from: DateTime!, to: DateTime!): Boolean @authed
 }

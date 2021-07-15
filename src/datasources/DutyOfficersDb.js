@@ -21,7 +21,7 @@ class DutyOfficersDb extends DataSource {
     ));
   }
 
-  async setDutyOfficer(shift, member, from, to) {
+  async setDutyOfficer(unit, shift, member, from, to) {
     const session = this.client.startSession();
     const collection = await this.collection;
 
@@ -30,13 +30,13 @@ class DutyOfficersDb extends DataSource {
     try {
       // Delete any fully overlapped ranges.
       await collection.deleteMany({
-        shift, from: { $gte: from }, to: { $lte: to },
+        unit, shift, from: { $gte: from }, to: { $lte: to },
       });
 
       // If an existing range fully engulfs this, update the englufer to abut this, and then
       // copy it after.
       const engulfing = await collection.findOneAndUpdate(
-        { shift, from: { $lt: from }, to: { $gt: to } },
+        { unit, shift, from: { $lt: from }, to: { $gt: to } },
         { $set: { to: from } },
       );
 
@@ -46,19 +46,19 @@ class DutyOfficersDb extends DataSource {
 
       // Update an existing range which overlaps the start of this range.
       await collection.update(
-        { shift, to: { $gt: from, $lte: to } },
+        { unit, shift, to: { $gt: from, $lte: to } },
         { $set: { to: from } },
       );
 
       // Update an existing range which overlaps the end of this range.
       await collection.update(
-        { shift, from: { $gte: from, $lt: to } },
+        { unit, shift, from: { $gte: from, $lt: to } },
         { $set: { from: to } },
       );
 
       // Insert the range itself, unless we don't have a member.
       if (member !== null) {
-        collection.insertOne({ shift, from, to, member });
+        collection.insertOne({ unit, shift, from, to, member });
       }
 
       await session.commitTransaction();
