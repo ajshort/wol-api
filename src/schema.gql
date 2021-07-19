@@ -123,6 +123,11 @@ type Statistics {
   counts: [AvailabilityCount!]!
 }
 
+type ShiftTeams {
+  day: String
+  night: String
+}
+
 type Query {
   unit(code: String!): Unit @authed
   units(filter: UnitFilter): [Unit!]! @authed
@@ -134,6 +139,9 @@ type Query {
 
   """Gets the duty officers at `instant`, defaulting to now"""
   dutyOfficersAt(unitCode: String!, instant: DateTime): [DutyOfficer]! @authed
+
+  """Gets the shift teams"""
+  shiftTeams(unitCode: String!): ShiftTeams
 
   """Gets a member by number"""
   member(number: Int!): Member @authed

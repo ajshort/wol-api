@@ -78,6 +78,7 @@ module.exports = {
     dutyOfficersAt: (_source, { unitCode, instant }, { dataSources }) => (
       dataSources.dutyOfficers.fetchDutyOfficersAt(unitCode, instant || new Date())
     ),
+    shiftTeams: (_source, { unitCode }, { dataSources }) => dataSources.roster.fetchShiftTeams(unitCode),
     statistics: (_source, { stormUnitCodes, rescueUnitCodes, start, end }, { dataSources })=> (
       dataSources.availabilities.fetchStatistics(stormUnitCodes, rescueUnitCodes, start, end, dataSources.members)
     ),
