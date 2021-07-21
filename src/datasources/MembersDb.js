@@ -54,6 +54,7 @@ function transformMember({ _id, ...record }) {
     rank: record.Rank,
     mobile: record.Mobile,
     callsign: record.Callsign,
+    location: record.Location,
     units: record.Units.map(unit => ({
       code: unit.Unit,
       name: UNITS.find(({ code }) => unit.Unit === code).name,
