@@ -59,7 +59,7 @@ function transformMember({ _id, ...record }) {
       code: unit.Unit,
       name: UNITS.find(({ code }) => unit.Unit === code).name,
       team: unit.Team === 'None' ? null : unit.Team,
-      permission: (unit.Permission === 'NONE' || unit.Permission === 'VIEW_SELF') ? 'EDIT_SELF' : unit.Permission,
+      permission: (unit.Permission === 'EDIT_TEAM' || unit.Permission === 'EDIT_UNIT') ? unit.Permission : 'EDIT_SELF',
     })),
   };
 }
