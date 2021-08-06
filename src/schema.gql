@@ -125,8 +125,17 @@ type AvailabilityCount {
   frOnLand: RescueAvailableCount!
 }
 
+type MemberAvailabilitySum {
+  member: Member
+  storm: Float!
+  rescueImmediate: Float!
+  rescueSupport: Float!
+  rescueUnavailable: Float!
+}
+
 type Statistics {
   counts: [AvailabilityCount!]!
+  members: [MemberAvailabilitySum!]!
 }
 
 type ShiftTeams {
