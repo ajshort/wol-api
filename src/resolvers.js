@@ -55,6 +55,11 @@ module.exports = {
       dataSources.members.fetchMember(dutyOfficer.member)
     ),
   },
+  MemberAvailabilitySum: {
+    member: (sum, _args, { dataSources }) => (
+      dataSources.members.fetchMember(sum.member)
+    ),
+  },
   Query: {
     unit: (_source, { code }, { dataSources }) => dataSources.units.fetchUnit(code),
     units: (_source, { filter }, { dataSources }) => dataSources.units.fetchUnits(filter),
