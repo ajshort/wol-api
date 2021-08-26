@@ -12,7 +12,7 @@ const SAP_QUALIFICATIONS = {
   'SWDG-ACC': 'Storm and Water Damage Operation',
   'SAR1-ACC': 'Land Search Team Member',
   'FRL1-ACC': 'Swiftwater Rescue Awareness (FR L1)',
-  'FRL2-ARCC': 'Flood Rescue Boat Operator (FR L2)',
+  'FRL2-ACC': 'Flood Rescue Boat Operator (FR L2)',
   'FRL3-ACC': 'Swiftwater Rescue Technician (FR L3)',
 };
 
