@@ -1,3 +1,5 @@
+const { UNITS } = require('./config');
+
 const axios = require('axios');
 const { MongoClient } = require('mongodb');
 
@@ -17,21 +19,16 @@ require('dotenv').config();
   const conn = await mongo.connect();
   const db = await conn.db(process.env.MONGODB_DB);
 
-  // Repeatedly query a list of all units until we have all of them.
-  let units = [];
+  console.log('Querying units...');
 
-  for (let page = 1; ; ++page) {
-    console.log(`Querying units (page ${page})...`);
+  // Only include units we are aware of.
+  const res = await api.get('unit');
 
-    const response = await api.get('orgUnits', { params: { PageNumber: page, PageSize: 50 } });
-    const { currentPage, totalPages, results } = response.data;
-
-    units = units.concat(results);
-
-    if (currentPage >= totalPages) {
-      break;
-    }
-  }
+  const units = UNITS.map(({ name, code }) => ({
+    name,
+    code,
+    orgdataId: res.data.find(({ Name }) => name === Name).Id,
+  }))
 
   console.log('Inserting units into database...');
 

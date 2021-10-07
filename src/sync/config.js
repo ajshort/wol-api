@@ -1,7 +1,7 @@
-exports.UNIT_CODES = [
-  'SEZ-NIC-WOL',
-  'SEZ-NIC-DPT',
-  'STR-SHQ-OSU',
+exports.UNITS = [
+  { name: 'Dapto Unit', code: 'SEZ-NIC-DPT' },
+  { name: 'Operational Support Unit', code: 'SEZ-NIC-OSU' },
+  { name: 'Wollongong Unit', code: 'SEZ-NIC-WOL' },
 ];
 
 exports.QUALIFICATION_CODES = [
