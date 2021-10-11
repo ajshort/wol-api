@@ -1,7 +1,6 @@
-const { QUALIFICATION_CODES, UNIT_CODES } = require('./config');
+const { QUALIFICATION_CODES, UNIT_NAMES } = require('./config');
 
 const axios = require('axios');
-const axiosRetry = require('axios-retry');
 const _ = require('lodash');
 const { MongoClient } = require('mongodb');
 
@@ -12,8 +11,6 @@ require('dotenv').config();
     baseURL: process.env.SES_API_URL,
     headers: { 'Ocp-Apim-Subscription-Key': process.env.SES_API_KEY },
   });
-
-  axiosRetry(api, { retries: 3, retryDelay: axiosRetry.exponentialDelay });
 
   // Connect to the database.
   const mongo = new MongoClient(process.env.MONGODB_URL, {
@@ -27,29 +24,15 @@ require('dotenv').config();
   // may be in multiple units. We don't get actual member data yet.
   let ids = new Set();
 
-  for (const code of UNIT_CODES) {
-    console.log(`Querying unit "${code}"...`);
+  const units = await db.collection('units').find({}).toArray();
 
-    const unit = await db.collection('units').findOne({ code });
+  for (const { name, orgdataId } of units) {
+    console.log(`Querying unit "${name}"...`);
 
-    if (!unit) {
-      console.error(`Could not query the unit "${code}"`);
-      continue;
-    }
+    const res = await api.get(`unit/${orgdataId}/members`);
 
-    for (let page = 1; ; ++page) {
-      console.log(`Querying members of "${code}" (page ${page})...`);
-
-      const response = await api.get(`orgUnits/${unit.id}/people`, { params: { PageNumber: page, PageSize: 50 } });
-      const { currentPage, totalPages, results } = response.data;
-
-      for (const { id } of results) {
-        ids.add(id);
-      }
-
-      if (currentPage >= totalPages) {
-        break;
-      }
+    for (const member of res.data) {
+      ids.add(member.Id);
     }
   }
 
@@ -60,22 +43,35 @@ require('dotenv').config();
   for (const [index, id] of Array.from(ids).entries()) {
     console.log(`Querying member ${id} (${index + 1}/${ids.size})...`);
 
-    const response = await api.get(`/people/${id}`);
-    const data = _.pick(response.data, [
-      'id',
-      'firstName',
-      'lastName',
-      'preferredName',
-      'assignments',
-      'contactDetails',
-      'ranks',
-      'roles',
-      'qualifications',
-      'units',
-    ]);
+    const { data: member } = await api.get(`member/${id}`);
+    const { data: contacts } = await api.get(`member/${id}/contacts`);
+    const { data: positions } = await api.get(`member/${id}/positions`);
+    const { data: qualifications } = await api.get(`member/${id}/qualifications`);
+    const { data: ranks } = await api.get(`member/${id}/ranks`);
+    const { data: roles } = await api.get(`member/${id}/roles`);
 
-    // For some reason ID is a string?
-    data.id = parseInt(data.id, 10);
+    let mobile = null;
+
+    for (const type of ['MAIN', 'MOBP', 'SMS']) {
+      if (entry = contacts.find(({ Type }) => Type === type)) {
+        mobile = entry.Detail;
+        break;
+      }
+    }
+
+    const data = {
+      number: member.Id,
+      title: member.Title,
+      firstName: member.FirstName,
+      lastName: member.LastName,
+      preferredName: member.PreferredName,
+      fullName: `${member.FirstName} ${member.LastName}`,
+      mobile,
+      qualifications: qualifications.map(),
+    };
+
+    console.log(data);
+    throw 123;
 
     // We only care about some qualifications.
     data.qualifications = data.qualifications.filter(({ code }) => QUALIFICATION_CODES.includes(code));

@@ -1,7 +1,7 @@
 exports.UNITS = [
-  { name: 'Dapto Unit', code: 'SEZ-NIC-DPT' },
-  { name: 'Operational Support Unit', code: 'SEZ-NIC-OSU' },
-  { name: 'Wollongong Unit', code: 'SEZ-NIC-WOL' },
+  { name: 'Dapto Unit', code: 'DPT' },
+  { name: 'Operational Support Unit', code: 'OSU' },
+  { name: 'Wollongong Unit', code: 'WOL' },
 ];
 
 exports.QUALIFICATION_CODES = [
