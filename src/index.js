@@ -22,7 +22,8 @@ const mongo = new MongoClient(process.env.MONGODB_URL, {
   autoReconnect: true,
   reconnectInterval: 2500,
   reconnectTries: 5,
-  connectTimeoutMS: 20000,
+  connectTimeoutMS: 10000,
+  serverSelectionTimeoutMS: 10000,
   useNewUrlParser: true,
   useUnifiedTopology: false,
 });
