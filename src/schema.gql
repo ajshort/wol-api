@@ -107,7 +107,7 @@ type DutyOfficer {
   shift: Shift
   from: DateTime!
   to: DateTime!
-  member: Member!
+  member: Member
 }
 
 type RescueAvailableCount {
