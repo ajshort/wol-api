@@ -71,7 +71,7 @@ module.exports = {
         .map((availability, index) => ({
           availability,
           member: members[index],
-          membership: members[index].units.find(x => x.code === availability.unit),
+          membership: members[index] ? members[index].units.find(x => x.code === availability.unit) : undefined,
         }))
         .filter(({ membership }) => membership !== undefined);
     },
