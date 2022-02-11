@@ -41,23 +41,11 @@ require('dotenv').config();
   const members = [];
 
   for (const [index, id] of Array.from(ids).entries()) {
-    console.log(`Querying member ${id} (${index + 1}/${ids.size})...`);
+    console.log(`Refreshing and querying member ${id} (${index + 1}/${ids.size})...`);
 
-    const { data: member } = await api.get(`member/${id}`);
-    const { data: contacts } = await api.get(`member/${id}/contacts`);
-    const { data: positions } = await api.get(`member/${id}/positions`);
-    const { data: qualifications } = await api.get(`member/${id}/qualifications`);
-    const { data: ranks } = await api.get(`member/${id}/ranks`);
-    const { data: roles } = await api.get(`member/${id}/roles`);
+    await api.post(`member/refresh?id=${id}`);
 
-    let mobile = null;
-
-    for (const type of ['MAIN', 'MOBP', 'SMS']) {
-      if (entry = contacts.find(({ Type }) => Type === type)) {
-        mobile = entry.Detail;
-        break;
-      }
-    }
+    const { data: member } = await api.get(`member/${id}/detailed`);
 
     const data = {
       number: member.Id,
@@ -65,28 +53,12 @@ require('dotenv').config();
       firstName: member.FirstName,
       lastName: member.LastName,
       preferredName: member.PreferredName,
-      fullName: `${member.FirstName} ${member.LastName}`,
-      mobile,
-      qualifications: qualifications.map(),
+      fullName: `${member.PreferredName || member.FirstName} ${member.LastName}`,
+      qualifications: (member.Qualifications || [])
+        .map(({ Name, Abbrev }) => ({ code: Abbrev, name: Name }))
+        .filter(({ code }) => QUALIFICATION_CODES.includes(code)),
+      units: member.Positions.map(({ Name, Abbrev }) => ({ code: Abbrev, name: Name, team: null })),
     };
-
-    console.log(data);
-    throw 123;
-
-    // We only care about some qualifications.
-    data.qualifications = data.qualifications.filter(({ code }) => QUALIFICATION_CODES.includes(code));
-
-    // Look up assignments to get the list of units, augmenting with role names.
-    const units = await db
-      .collection('units')
-      .find({ id: { $in: data.assignments.map(assignment => assignment.orgUnitId) }, })
-      .toArray();
-
-    data.units = units.map(unit => ({
-      ...unit,
-      roles: data.roles.filter(role => role.orgUnit.id === unit.id).map(role => role.name),
-      team: _.sample(['Alpha', 'Bravo', 'Charlie', 'Delta']),
-    }));
 
     members.push(data);
   }
