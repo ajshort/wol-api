@@ -1,20 +1,24 @@
-const UNITS = require('./units');
-
 const { DataSource } = require('apollo-datasource');
 
 class UnitsDb extends DataSource {
+  constructor(db) {
+    super();
+
+    this.collection = db.then(connection => connection.collection('units'));
+  }
+
   fetchUnit(code) {
-    return UNITS.find(unit => unit.code === code);
+    return this.collection.then(coll => coll.findOne({ code }));
   }
 
   fetchUnits(filter) {
-    let units = UNITS;
+    const where = { };
 
     if (filter && filter.codeAny) {
-      units = units.filter(({ code }) => filter.codeAny.includes(code));
+      where['code'] = { $in: filter.codeAny };
     }
 
-    return units;
+    return this.collection.then(coll => coll.find(where).toArray());
   }
 }
 
