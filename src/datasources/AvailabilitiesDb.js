@@ -131,7 +131,7 @@ class AvailabilitiesDb extends DataSource {
         continue;
       }
 
-      const intersction = Interval
+      const intersection = Interval
         .fromDateTimes(DateTime.fromJSDate(record.start), DateTime.fromJSDate(record.end))
         .intersection(interval);
       const duration = intersection ? intersection.count('seconds') : 0;
