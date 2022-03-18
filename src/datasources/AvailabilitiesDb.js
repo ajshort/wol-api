@@ -131,10 +131,10 @@ class AvailabilitiesDb extends DataSource {
         continue;
       }
 
-      const duration = Interval
+      const intersction = Interval
         .fromDateTimes(DateTime.fromJSDate(record.start), DateTime.fromJSDate(record.end))
-        .intersection(interval)
-        .count('seconds');
+        .intersection(interval);
+      const duration = intersection ? intersection.count('seconds') : 0;
 
       if (record.storm === 'AVAILABLE') {
         summations[record.member].storm += duration;
