@@ -22,7 +22,7 @@ if (process.env.NODE_ENV === 'development') {
 
   clientPromise = global._connectionPromise;
 } else {
-  client = new MongoClient(uri, options);
+  client = new MongoClient(url, options);
   clientPromise = client.connect();
 }
 
