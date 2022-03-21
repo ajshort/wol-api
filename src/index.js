@@ -3,7 +3,6 @@ const { readFileSync } = require('fs');
 const path = require('path');
 const jwt = require('jsonwebtoken');
 const cors = require('micro-cors')();
-const { MongoClient } = require('mongodb');
 
 const AuthedDirective = require('./AuthedDirective');
 const AvailabilitiesDb = require('./datasources/AvailabilitiesDb');
@@ -15,19 +14,12 @@ const resolvers = require('./resolvers');
 
 require('dotenv').config();
 
+const { client: mongo, clientPromise: connection } = require('./connection');
+
 const schema = readFileSync(path.join(__dirname, '/schema.gql'), 'utf-8');
 const typeDefs = gql(schema);
 
-const mongo = new MongoClient(process.env.MONGODB_URL, {
-  autoReconnect: true,
-  reconnectInterval: 2500,
-  reconnectTries: 5,
-  connectTimeoutMS: 10000,
-  serverSelectionTimeoutMS: 10000,
-  useNewUrlParser: true,
-  useUnifiedTopology: false,
-});
-const database = mongo.connect().then(connection => connection.db(process.env.MONGODB_DB));
+const database = connection.then(connection => connection.db(process.env.MONGODB_DB));
 
 const availabilitiesDb = new AvailabilitiesDb(mongo, database);
 const dutyOfficersDb = new DutyOfficersDb(mongo, database);
