@@ -2,11 +2,11 @@ const { MongoClient } = require('mongodb');
 
 const url = process.env.MONGODB_URL;
 const opts = {
-  autoReconnect: true,
-  reconnectInterval: 2500,
-  reconnectTries: 5,
-  connectTimeoutMS: 10000,
-  serverSelectionTimeoutMS: 10000,
+  // autoReconnect: true,
+  // reconnectInterval: 2500,
+  // reconnectTries: 5,
+  // connectTimeoutMS: 10000,
+  // serverSelectionTimeoutMS: 10000,
   useNewUrlParser: true,
   useUnifiedTopology: false,
 };
