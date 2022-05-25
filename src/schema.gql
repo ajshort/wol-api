@@ -133,9 +133,17 @@ type MemberAvailabilitySum {
   rescueUnavailable: Float!
 }
 
+type TeamAvailabilityStatistics {
+  unit: String!
+  team: String!
+  members: Int!
+  enteredStorm: Int!
+}
+
 type Statistics {
   counts: [AvailabilityCount!]!
   members: [MemberAvailabilitySum!]!
+  teams: [TeamAvailabilityStatistics]!
 }
 
 type ShiftTeams {

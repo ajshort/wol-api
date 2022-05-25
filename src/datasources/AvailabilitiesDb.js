@@ -118,6 +118,27 @@ class AvailabilitiesDb extends DataSource {
     // Get members of interest.
     const members = await membersSource.fetchAllMembers({ unitsAny: units });
 
+    // Make a list of teams.
+    const teams = {};
+
+    for (const unit of units) {
+      teams[unit] = {};
+    }
+
+    for (const member of members) {
+      for (const membership of member.units) {
+        if (!units.includes(membership.code)) {
+          continue;
+        }
+
+        if (!_.has(teams[membership.code], membership.team)) {
+          teams[membership.code][membership.team] = { members: 1, enteredStorm: new Set() };
+        } else {
+          teams[membership.code][membership.team].members++;
+        }
+      }
+    }
+
     // Go through and sum up the total available seconds of all members.
     const summations = {};
 
@@ -131,9 +152,16 @@ class AvailabilitiesDb extends DataSource {
         continue;
       }
 
+      const member = members.find(member => member.number === record.member);
+
       const intersection = Interval
         .fromDateTimes(DateTime.fromJSDate(record.start), DateTime.fromJSDate(record.end))
         .intersection(interval);
+
+      if (!intersection) {
+        continue;
+      }
+
       const duration = intersection ? intersection.count('seconds') : 0;
 
       if (record.storm === 'AVAILABLE') {
@@ -146,6 +174,16 @@ class AvailabilitiesDb extends DataSource {
         summations[record.member].rescueSupport += duration;
       } else if (record.rescue === 'UNAVAILABLE') {
         summations[record.member].rescueUnavailable += duration;
+      }
+
+      if (record.storm) {
+        for (const { code, team } of member.units) {
+          if (!units.includes(code)) {
+            continue;
+          }
+
+          teams[code][team].enteredStorm.add(record.member);
+        }
       }
     }
 
@@ -243,18 +281,19 @@ class AvailabilitiesDb extends DataSource {
       counts.push(count);
     }
 
-    // Go through and total up the teams.
-    // const teams = _
-    //   .toPairs(_.groupBy(members.filter(member => !unit || member.unit === unit), 'team'))
-    //   .map(([team, members]) => ({
-    //     team,
-    //     members: members.length,
-    //     enteredStorm: members.filter(member => enteredStorm.has(member.number)).length,
-    //   }));
+    const teamsResult = _.flatten(Object.entries(teams).map(([unit, teams]) => {
+      return Object.entries(teams).map(([team, data]) => ({
+        unit,
+        team,
+        members: data.members,
+        enteredStorm: data.enteredStorm.size,
+      }));
+    }));
 
     return {
       counts,
       members: Object.entries(summations).map(([member, counts]) => ({ member: parseInt(member, 10), ...counts })),
+      teams: teamsResult,
     };
   }
 
