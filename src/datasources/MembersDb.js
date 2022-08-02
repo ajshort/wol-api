@@ -9,7 +9,7 @@ const SAP_QUALIFICATIONS = {
   'VR-ACC': 'Vertical Rescue (PUASAR004B/PUASAR032A)',
   'CL1-ACC': 'Chainsaw Operator (Cross-Cut & Limb)',
   'CL2-ACC': 'Chainsaw Operator (Tree Felling)',
-  'SWDH-ACC': 'Storm and Water Damage Operation (heights)',
+  'SWDH-ACC': 'Storm and Water Damage Operation',
   'SWDG-ACC': 'Storm and Water Damage Operation (ground only)',
   'SAR1-ACC': 'Land Search Team Member',
   'FRL1-ACC': 'Swiftwater Rescue Awareness (FR L1)',
