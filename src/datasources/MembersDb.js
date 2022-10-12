@@ -75,7 +75,7 @@ class MembersDb extends DataSource {
 
   fetchAllMembers(filter) {
     return this.collection.then((members) => {
-      const where = { };
+      const where = { 'Id': { $ne: '40000000' } };
 
       if (filter && filter.unitsAny) {
         where['Units.Unit'] = { $in: filter.unitsAny };
