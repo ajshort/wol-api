@@ -146,11 +146,14 @@ module.exports = {
       const editorMembership = me.units.find(unit => unit.code === unitCode);
       const targetMembership = member.units.find(unit => unit.code === unitCode);
 
-      if (!editorMembership || !targetMembership) {
+      // If we have EDIT_UNIT, just assume we can manage all unit availabilities.
+      const isElevated = me.units.some(unit => unit.permission === 'EDIT_UNIT');
+
+      if (!editorMembership && !targetMembership) {
         throw new UserInputError('Could not find members in unit');
       }
 
-      if (member.number !== me.number) {
+      if (!isElevated && member.number !== me.number) {
         switch (editorMembership.permission) {
           case 'EDIT_UNIT':
             break;
