@@ -64,8 +64,8 @@ const server = new ApolloServer({
     units: unitsDb,
     roster: rosterDb,
   }),
-  playground: true,
-  introspection: true,
+  playground: false,
+  introspection: false,
 });
 
 const handler = server.createHandler();

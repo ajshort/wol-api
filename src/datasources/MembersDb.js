@@ -44,18 +44,18 @@ function transformMember({ _id, ...record }) {
       break;
   }
 
+  const lastInitial = record.Surname ? record.Surname.charAt(0) : '';
+
   return {
     _id,
     number: parseInt(record.Id, 10),
     firstName: record.Name,
-    lastName: record.Surname,
+    lastName: lastInitial,
     preferredName: record.Name,
-    fullName: `${record.Name} ${record.Surname}`,
+    fullName: lastInitial ? `${record.Name} ${lastInitial}` : record.Name,
     qualifications,
     rank: record.Rank,
-    mobile: record.Mobile,
     callsign: record.Callsign,
-    location: record.Location,
     units: record.Units.map(unit => ({
       code: unit.Unit,
       name: UNITS.find(({ code }) => unit.Unit === code).name,

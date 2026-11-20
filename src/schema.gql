@@ -22,11 +22,6 @@ type Unit {
   ): [MemberWithAvailabilities!]!
 }
 
-type LatLng {
-  lat: Float!
-  lng: Float!
-}
-
 type Member {
   _id: ID!
   number: Int!
@@ -36,9 +31,7 @@ type Member {
   lastName: String
   fullName: String
   preferredName: String
-  mobile: String
   callsign: String
-  location: LatLng
 
   qualifications: [String!]
   rank: String
